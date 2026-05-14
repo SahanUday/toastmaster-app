@@ -1,0 +1,30 @@
+# Project: JaseciLabs TM Manager
+## Status: IN PROGRESS
+## Plan
+1. [x] Analyze project structure
+2. [x] Build Timer page for Timer role
+3. [ ] Build Ah-Counter page
+4. [ ] Build Meeting Scheduler
+5. [ ] Build Role Assignment
+
+## Files
+- components/timer.cl.jac — Timer with presets, color signals, start/pause/reset
+- frontend.cl.jac — Main app entry, renders Timer
+
+## Timer Features
+- Speech type presets (5-7min, 1-2min Table Topics, 2-3min Eval, 4-6min Ice Breaker)
+- Big digital display (MM:SS)
+- Green/Yellow/Red signal lights
+- Background color changes at thresholds
+- Start/Pause/Reset controls
+
+## Issues
+- Sandbox pod connectivity issue - commands failing
+
+## Learnings
+- Dict access returns Any type - need int() cast for arithmetic
+- UI components use props: Any pattern
+- cn() takes list of classes
+
+## Last Action
+Timer component complete. Waiting for sandbox to be ready.
