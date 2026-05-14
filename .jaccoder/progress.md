@@ -20,11 +20,13 @@
 
 ## Issues
 - Sandbox pod connectivity issue - commands failing
+- Timer stuck at 00:01 - FIXED (stale closure issue)
 
 ## Learnings
 - Dict access returns Any type - need int() cast for arithmetic
 - UI components use props: Any pattern
 - cn() takes list of classes
+- setInterval closure captures state at creation time - use glob dict as mutable ref
 
 ## Last Action
-Timer component complete. Waiting for sandbox to be ready.
+Fixed timer stale closure bug - using glob counter_ref dict to track value.

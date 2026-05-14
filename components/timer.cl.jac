@@ -9,11 +9,17 @@ glob PRESETS: list = [
     {"name": "Custom", "green": 0, "yellow": 0, "red": 0}
 ];
 
+# Mutable ref to track counter - avoids stale closure issue
+glob counter_ref: dict = {"value": 0};
+
 def:pub Timer() -> JsxElement {
     has elapsed: int = 0;
     has is_running: bool = False;
     has interval_id: Any = None;
     has selected_preset: int = 0;
+
+    # Sync counter_ref with elapsed on mount/update
+    counter_ref["value"] = elapsed;
 
     # Get current preset thresholds
     preset: Any = PRESETS[selected_preset];
@@ -40,7 +46,8 @@ def:pub Timer() -> JsxElement {
         if not is_running {
             is_running = True;
             interval_id = setInterval(lambda -> None {
-                elapsed = elapsed + 1;
+                counter_ref["value"] = counter_ref["value"] + 1;
+                elapsed = int(counter_ref["value"]);
             }, 1000);
         }
     }
@@ -61,11 +68,13 @@ def:pub Timer() -> JsxElement {
             clearInterval(interval_id);
             interval_id = None;
         }
+        counter_ref["value"] = 0;
         elapsed = 0;
     }
 
     def handle_preset_change(e: ChangeEvent) -> None {
         selected_preset = int(e.target.value);
+        counter_ref["value"] = 0;
         elapsed = 0;
         is_running = False;
         if interval_id {
