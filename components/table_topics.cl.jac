@@ -5,7 +5,7 @@ import from .ui.badge { Badge }
 import from .ui.input { Input }
 import from .ui.separator { Separator }
 cl import from "@hugeicons/react" { HugeiconsIcon }
-cl import from "@hugeicons/core-free-icons" { Microphone01Icon, PlayIcon, StopIcon, Delete01Icon, RefreshIcon, UserAdd01Icon, CheckmarkCircle01Icon }
+cl import from "@hugeicons/core-free-icons" { Mic01Icon, PlayIcon, StopIcon, Delete01Icon, RefreshIcon, UserAdd01Icon, CheckmarkCircle01Icon }
 
 glob tt_ref: dict = {"entries": []};
 glob tt_timer_ref: dict = {"value": 0};
@@ -131,7 +131,7 @@ def:pub TableTopics() -> JsxElement {
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
             <div className="flex items-center gap-3">
                 <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <HugeiconsIcon icon={Microphone01Icon} strokeWidth={1.5} className="size-5 text-primary" />
+                    <HugeiconsIcon icon={Mic01Icon} strokeWidth={1.5} className="size-5 text-primary" />
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Table Topics</h1>
@@ -191,7 +191,7 @@ def:pub TableTopics() -> JsxElement {
             {not has_entries and <Card>
                 <CardContent className="py-16 text-center flex flex-col items-center gap-3">
                     <div className="size-16 rounded-2xl bg-muted flex items-center justify-center">
-                        <HugeiconsIcon icon={Microphone01Icon} strokeWidth={1} className="size-8 text-muted-foreground" />
+                        <HugeiconsIcon icon={Mic01Icon} strokeWidth={1} className="size-8 text-muted-foreground" />
                     </div>
                     <p className="font-medium text-muted-foreground">No speakers yet</p>
                     <p className="text-sm text-muted-foreground">Add the first Table Topics speaker above</p>
