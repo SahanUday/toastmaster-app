@@ -53,7 +53,7 @@ def:pub Dashboard(onNavigate: Any) -> JsxElement {
                     <Separator className="flex-1" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[<Card key={str(tools[i]["id"])} className="cursor-pointer hover:shadow-md transition-shadow group">
+                    {[<Card key={str(tools[i]["id"])} className="cursor-pointer hover:shadow-md transition-shadow group" onClick={lambda(e: MouseEvent) -> None { go(str(tools[i]["id"])); }}>
                         <CardContent className="p-5">
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-start gap-4">
