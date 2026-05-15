@@ -4,8 +4,7 @@
 1. [x] Analyze project structure
 2. [x] Build Timer page for Timer role
 3. [x] Build Ah-Counter page
-4. [ ] Build Meeting Scheduler
-5. [ ] Build Role Assignment
+4. [x] Build Meeting Scheduler + Role Assignment (combined as Meeting Planner)
 
 ## Files
 - components/timer.cl.jac — Timer with presets, color signals, start/pause/reset
