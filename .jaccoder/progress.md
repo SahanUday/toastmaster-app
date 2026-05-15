@@ -3,7 +3,7 @@
 ## Plan
 1. [x] Analyze project structure
 2. [x] Build Timer page for Timer role
-3. [ ] Build Ah-Counter page
+3. [x] Build Ah-Counter page
 4. [ ] Build Meeting Scheduler
 5. [ ] Build Role Assignment
 
