@@ -1,4 +1,11 @@
 import from ..lib.utils { cn }
+import from .ui.card { Card, CardHeader, CardTitle, CardDescription, CardContent }
+import from .ui.button { Button }
+import from .ui.badge { Badge }
+import from .ui.input { Input }
+import from .ui.separator { Separator }
+cl import from "@hugeicons/react" { HugeiconsIcon }
+cl import from "@hugeicons/core-free-icons" { MicrophoneIcon, PlayIcon, StopIcon, Delete01Icon, RefreshIcon, UserAdd01Icon, CheckmarkCircle01Icon }
 
 glob tt_ref: dict = {"entries": []};
 glob tt_timer_ref: dict = {"value": 0};
@@ -116,105 +123,129 @@ def:pub TableTopics() -> JsxElement {
     has_entries: bool = len(entries) > 0;
     live_display: str = fmt(timer_elapsed);
 
+    green_sig: str = "bg-green-500 shadow-green-500/50 shadow-lg" if timer_elapsed >= 60 else "bg-green-500/20";
+    yellow_sig: str = "bg-yellow-400 shadow-yellow-400/50 shadow-lg" if timer_elapsed >= 90 else "bg-yellow-400/20";
+    red_sig: str = "bg-red-500 shadow-red-500/50 shadow-lg" if timer_elapsed >= 120 else "bg-red-500/20";
+
     return <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
-            <div className="text-center flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">🗣️ Table Topics</h1>
-                <p className="text-muted-foreground">Track impromptu speakers and their times</p>
+            <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <HugeiconsIcon icon={MicrophoneIcon} strokeWidth={1.5} className="size-5 text-primary" />
+                </div>
+                <div>
+                    <h1 className="text-2xl font-bold text-foreground">Table Topics</h1>
+                    <p className="text-sm text-muted-foreground">Track impromptu speakers and their times</p>
+                </div>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">Add Speaker</h2>
-                <div className="flex flex-col gap-3">
-                    <input
-                        type="text"
+            <Card>
+                <CardHeader>
+                    <CardTitle>Add Speaker</CardTitle>
+                    <CardDescription>Add each Table Topics speaker before they speak</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                    <Input
                         value={new_speaker}
                         onChange={handle_speaker_change}
                         onKeyDown={handle_key}
                         placeholder="Speaker name..."
-                        className="w-full p-3 rounded-lg border border-input bg-background text-foreground text-base"
                     />
-                    <input
-                        type="text"
+                    <Input
                         value={new_topic}
                         onChange={handle_topic_change}
                         placeholder="Topic / question (optional)..."
-                        className="w-full p-3 rounded-lg border border-input bg-background text-foreground text-base"
                     />
-                    <button
-                        onClick={add_entry}
-                        className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
+                    <Button onClick={add_entry} className="gap-2">
+                        <HugeiconsIcon icon={UserAdd01Icon} strokeWidth={2} className="size-4" />
+                        Add Speaker
+                    </Button>
+                </CardContent>
+            </Card>
+
+            {active_timer >= 0 and active_timer < len(entries) and <Card className="border-2 border-primary">
+                <CardContent className="py-8 flex flex-col items-center gap-6">
+                    <div className="flex flex-col items-center gap-1">
+                        <Badge className="mb-1">Now Speaking</Badge>
+                        <p className="text-xl font-bold">{str(entries[active_timer]["speaker"])}</p>
+                        {str(entries[active_timer]["topic"]) and <p className="text-sm text-muted-foreground">{"Topic: " + str(entries[active_timer]["topic"])}</p>}
+                    </div>
+                    <div className="text-7xl font-mono font-bold text-primary tabular-nums">{live_display}</div>
+                    <div className="flex items-center gap-5">
+                        <div className={cn(["size-12 rounded-full transition-all duration-300", green_sig])}></div>
+                        <div className={cn(["size-12 rounded-full transition-all duration-300", yellow_sig])}></div>
+                        <div className={cn(["size-12 rounded-full transition-all duration-300", red_sig])}></div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">🟢 1:00 &nbsp;·&nbsp; 🟡 1:30 &nbsp;·&nbsp; 🔴 2:00</p>
+                    <Button
+                        onClick={lambda(e: MouseEvent) -> None { stop_timer(active_timer); }}
+                        variant="destructive"
+                        className="gap-2 px-8"
                     >
-                        + Add Speaker
-                    </button>
-                </div>
-            </div>
+                        <HugeiconsIcon icon={StopIcon} strokeWidth={2} className="size-4" />
+                        Stop & Save
+                    </Button>
+                </CardContent>
+            </Card>}
 
-            {active_timer >= 0 and <div className="rounded-xl border-2 border-primary bg-primary/5 p-6 text-center">
-                <p className="text-sm text-muted-foreground mb-1">Now Speaking</p>
-                <p className="text-xl font-bold mb-3">{str(entries[active_timer]["speaker"]) if active_timer < len(entries) else ""}</p>
-                <div className="text-6xl font-mono font-bold text-primary mb-4">{live_display}</div>
-                <div className="flex justify-center gap-3">
-                    <div className={cn(["w-4 h-4 rounded-full", "bg-green-500" if timer_elapsed >= 60 else "bg-green-500/20"])}></div>
-                    <div className={cn(["w-4 h-4 rounded-full", "bg-yellow-400" if timer_elapsed >= 90 else "bg-yellow-400/20"])}></div>
-                    <div className={cn(["w-4 h-4 rounded-full", "bg-red-500" if timer_elapsed >= 120 else "bg-red-500/20"])}></div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">🟢 1:00 &nbsp; 🟡 1:30 &nbsp; 🔴 2:00</p>
-                <button
-                    onClick={lambda(e: MouseEvent) -> None { stop_timer(active_timer); }}
-                    className="mt-4 px-8 py-3 rounded-lg bg-destructive/10 text-destructive border border-destructive/30 font-semibold hover:bg-destructive/20 transition-colors"
-                >
-                    ⏹ Stop & Save
-                </button>
-            </div>}
+            {not has_entries and <Card>
+                <CardContent className="py-16 text-center flex flex-col items-center gap-3">
+                    <div className="size-16 rounded-2xl bg-muted flex items-center justify-center">
+                        <HugeiconsIcon icon={MicrophoneIcon} strokeWidth={1} className="size-8 text-muted-foreground" />
+                    </div>
+                    <p className="font-medium text-muted-foreground">No speakers yet</p>
+                    <p className="text-sm text-muted-foreground">Add the first Table Topics speaker above</p>
+                </CardContent>
+            </Card>}
 
-            {not has_entries and <div className="rounded-xl border border-border bg-card p-12 text-center">
-                <p className="text-4xl mb-3">🗣️</p>
-                <p className="text-muted-foreground">No speakers yet. Add the first Table Topics speaker above.</p>
-            </div>}
-
-            {has_entries and <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">{"Speakers (" + str(len(entries)) + ")"}</h2>
-                <div className="flex flex-col gap-3">
-                    {[<div key={str(i)} className={cn(["rounded-lg p-4 border transition-colors",
-                        "border-primary bg-primary/5" if active_timer == i else "border-border bg-muted"
+            {has_entries and <Card>
+                <CardHeader>
+                    <CardTitle>{"Speakers (" + str(len(entries)) + ")"}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                    {[<div key={str(i)} className={cn(["rounded-xl p-4 border transition-colors",
+                        "border-primary bg-primary/5" if active_timer == i else "border-border bg-muted/30"
                     ])}>
                         <div className="flex items-start justify-between gap-3">
                             <div className="flex flex-col gap-1 flex-1">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 flex-wrap">
                                     <span className="font-semibold">{str(entries[i]["speaker"])}</span>
-                                    {str(entries[i]["done"]) == "True" and <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/10 text-green-600 font-medium">Done</span>}
-                                    {active_timer == i and <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">Speaking...</span>}
+                                    {str(entries[i]["done"]) == "True" and <Badge variant="secondary" className="gap-1">
+                                        <HugeiconsIcon icon={CheckmarkCircle01Icon} strokeWidth={2} className="size-3" />
+                                        {fmt(int(entries[i]["duration"]))}
+                                    </Badge>}
+                                    {active_timer == i and <Badge>Speaking...</Badge>}
                                 </div>
                                 {str(entries[i]["topic"]) and <p className="text-sm text-muted-foreground">{"Topic: " + str(entries[i]["topic"])}</p>}
-                                {str(entries[i]["done"]) == "True" and <p className="text-sm font-medium text-primary">{"Time: " + fmt(int(entries[i]["duration"]))}</p>}
                             </div>
                             <div className="flex items-center gap-2">
-                                {active_timer != i and str(entries[i]["done"]) != "True" and <button
+                                {active_timer != i and str(entries[i]["done"]) != "True" and <Button
+                                    size="sm"
                                     onClick={lambda(e: MouseEvent) -> None { start_timer(i); }}
-                                    className="px-3 py-1.5 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition-colors"
+                                    className="gap-1.5 bg-green-600 hover:bg-green-700 text-white"
                                 >
-                                    ▶ Start
-                                </button>}
-                                <button
+                                    <HugeiconsIcon icon={PlayIcon} strokeWidth={2} className="size-3.5" />
+                                    Start
+                                </Button>}
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
                                     onClick={lambda(e: MouseEvent) -> None { remove_entry(i); }}
-                                    className="text-muted-foreground hover:text-destructive transition-colors"
+                                    className="text-muted-foreground hover:text-destructive"
                                 >
-                                    ✕
-                                </button>
+                                    <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
+                                </Button>
                             </div>
                         </div>
                     </div> for i in range(len(entries))]}
-                </div>
-            </div>}
+                </CardContent>
+            </Card>}
 
             {has_entries and <div className="flex justify-center">
-                <button
-                    onClick={handle_reset}
-                    className="px-6 py-3 rounded-lg border border-border bg-background hover:bg-muted text-foreground font-semibold transition-colors"
-                >
-                    🔄 Reset All
-                </button>
+                <Button variant="outline" onClick={handle_reset} className="gap-2 text-destructive hover:text-destructive">
+                    <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} className="size-4" />
+                    Reset All
+                </Button>
             </div>}
         </div>
     </div>;

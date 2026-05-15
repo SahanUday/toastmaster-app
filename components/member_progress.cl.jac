@@ -1,4 +1,12 @@
 import from ..lib.utils { cn }
+import from .ui.card { Card, CardHeader, CardTitle, CardDescription, CardContent }
+import from .ui.button { Button }
+import from .ui.badge { Badge }
+import from .ui.input { Input }
+import from .ui.progress { Progress }
+import from .ui.separator { Separator }
+cl import from "@hugeicons/react" { HugeiconsIcon }
+cl import from "@hugeicons/core-free-icons" { Trophy01Icon, UserAdd01Icon, Delete01Icon, ArrowLeft01Icon, CheckmarkCircle01Icon, Circle01Icon }
 
 glob PATHWAYS_SPEECHES: list = [
     "Ice Breaker",
@@ -6,16 +14,16 @@ glob PATHWAYS_SPEECHES: list = [
     "Introduction to Vocal Variety & Body Language",
     "Evaluation & Feedback",
     "Understanding Your Leadership Style",
-    "Level 1 Complete",
+    "Level 1 Complete ✓",
     "Research & Presenting",
     "Connect with Storytelling",
     "Effective Body Language",
     "Know Your Sense of Humor",
-    "Level 2 Complete",
+    "Level 2 Complete ✓",
     "Persuasive Influence",
     "Inspire Your Audience",
     "Prepare for an Interview",
-    "Level 3 Complete"
+    "Level 3 Complete ✓"
 ];
 
 glob progress_ref: dict = {"members": []};
@@ -106,104 +114,130 @@ def:pub MemberProgress() -> JsxElement {
 
     return <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
-            <div className="text-center flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">🏆 Member Progress</h1>
-                <p className="text-muted-foreground">Track Pathways speech completions</p>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">Add Member</h2>
-                <div className="flex gap-3">
-                    <input
-                        type="text"
-                        value={new_member}
-                        onChange={handle_name_change}
-                        onKeyDown={handle_key}
-                        placeholder="Member name..."
-                        className="flex-1 p-3 rounded-lg border border-input bg-background text-foreground text-base"
-                    />
-                    <button
-                        onClick={add_member}
-                        className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
-                    >
-                        + Add
-                    </button>
+            <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <HugeiconsIcon icon={Trophy01Icon} strokeWidth={1.5} className="size-5 text-primary" />
+                </div>
+                <div>
+                    <h1 className="text-2xl font-bold text-foreground">Member Progress</h1>
+                    <p className="text-sm text-muted-foreground">Track Pathways speech completions</p>
                 </div>
             </div>
 
-            {not has_members and <div className="rounded-xl border border-border bg-card p-12 text-center">
-                <p className="text-4xl mb-3">🏆</p>
-                <p className="text-muted-foreground">No members yet. Add club members to track their Pathways progress.</p>
-            </div>}
+            {not show_detail and <div className="flex flex-col gap-4">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Add Member</CardTitle>
+                        <CardDescription>Track a member's Pathways journey</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex gap-3">
+                            <Input
+                                value={new_member}
+                                onChange={handle_name_change}
+                                onKeyDown={handle_key}
+                                placeholder="Member name..."
+                                className="flex-1"
+                            />
+                            <Button onClick={add_member} className="gap-2">
+                                <HugeiconsIcon icon={UserAdd01Icon} strokeWidth={2} className="size-4" />
+                                Add
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
 
-            {has_members and not show_detail and <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">{"Members (" + str(len(members)) + ")"}</h2>
-                <div className="flex flex-col gap-3">
-                    {[<div key={str(i)} className="flex items-center justify-between p-4 rounded-xl bg-muted cursor-pointer hover:bg-muted/80 transition-colors"
-                        onClick={lambda(e: MouseEvent) -> None { selected_member = i; }}>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+                {not has_members and <Card>
+                    <CardContent className="py-16 text-center flex flex-col items-center gap-3">
+                        <div className="size-16 rounded-2xl bg-muted flex items-center justify-center">
+                            <HugeiconsIcon icon={Trophy01Icon} strokeWidth={1} className="size-8 text-muted-foreground" />
+                        </div>
+                        <p className="font-medium text-muted-foreground">No members yet</p>
+                        <p className="text-sm text-muted-foreground">Add club members to track their Pathways progress</p>
+                    </CardContent>
+                </Card>}
+
+                {has_members and <Card>
+                    <CardHeader>
+                        <CardTitle>{"Members (" + str(len(members)) + ")"}</CardTitle>
+                        <CardDescription>Click a member to view and update their progress</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-3">
+                        {[<div key={str(i)} className="flex items-center gap-4 p-4 rounded-xl border border-border bg-muted/30 cursor-pointer hover:bg-muted transition-colors"
+                            onClick={lambda(e: MouseEvent) -> None { selected_member = i; }}>
+                            <div className="size-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
                                 {str(members[i]["name"])[0].upper()}
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="font-semibold">{str(members[i]["name"])}</span>
-                                <span className="text-xs text-muted-foreground">{str(get_completed(members[i])) + " / " + str(len(PATHWAYS_SPEECHES)) + " speeches completed"}</span>
+                            <div className="flex flex-col gap-2 flex-1">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-semibold">{str(members[i]["name"])}</span>
+                                    <Badge variant="secondary">{str(get_completed(members[i])) + " / " + str(len(PATHWAYS_SPEECHES))}</Badge>
+                                </div>
+                                <Progress value={int(get_completed(members[i]) * 100 / len(PATHWAYS_SPEECHES))} className="h-2" />
                             </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <div className="w-24 h-2 rounded-full bg-border overflow-hidden">
-                                <div className="h-full bg-primary rounded-full transition-all" style={{"width": str(int(get_completed(members[i]) * 100 / len(PATHWAYS_SPEECHES))) + "%"}}></div>
-                            </div>
-                            <span className="text-sm text-muted-foreground">→</span>
-                        </div>
-                    </div> for i in range(len(members))]}
-                </div>
+                        </div> for i in range(len(members))]}
+                    </CardContent>
+                </Card>}
             </div>}
 
             {show_detail and <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                            {str(members[selected_member]["name"])[0].upper()}
-                        </div>
-                        <div>
-                            <h2 className="text-lg font-semibold">{str(members[selected_member]["name"])}</h2>
-                            <p className="text-sm text-muted-foreground">{str(get_completed(members[selected_member])) + " / " + str(len(PATHWAYS_SPEECHES)) + " completed"}</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={lambda(e: MouseEvent) -> None { remove_member(selected_member); }}
-                            className="px-3 py-1.5 text-sm rounded-lg text-destructive border border-destructive/30 hover:bg-destructive/10 transition-colors"
-                        >
-                            Remove
-                        </button>
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={lambda(e: MouseEvent) -> None { selected_member = -1; }}
-                            className="px-3 py-1.5 text-sm rounded-lg border border-border hover:bg-muted transition-colors"
+                            className="gap-1.5"
                         >
-                            ← Back
-                        </button>
+                            <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="size-4" />
+                            Back
+                        </Button>
+                        <Separator orientation="vertical" className="h-5" />
+                        <div className="flex items-center gap-3">
+                            <div className="size-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                                {str(members[selected_member]["name"])[0].upper()}
+                            </div>
+                            <div>
+                                <p className="font-semibold">{str(members[selected_member]["name"])}</p>
+                                <p className="text-xs text-muted-foreground">{str(get_completed(members[selected_member])) + " / " + str(len(PATHWAYS_SPEECHES)) + " speeches completed"}</p>
+                            </div>
+                        </div>
                     </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={lambda(e: MouseEvent) -> None { remove_member(selected_member); }}
+                        className="gap-1.5 text-destructive hover:text-destructive"
+                    >
+                        <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-3.5" />
+                        Remove
+                    </Button>
                 </div>
 
-                <div className="rounded-xl border border-border bg-card p-6">
-                    <h3 className="font-semibold mb-4">Pathways Progress</h3>
-                    <div className="flex flex-col gap-2">
-                        {[<button
-                            key={str(j)}
-                            onClick={lambda(e: MouseEvent) -> None { toggle_speech(selected_member, str(PATHWAYS_SPEECHES[j])); }}
-                            className={cn(["flex items-center gap-3 p-3 rounded-lg border text-left w-full transition-colors",
-                                "bg-primary/10 border-primary/30 text-foreground" if bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) else "bg-background border-border hover:bg-muted text-muted-foreground"
-                            ])}
-                        >
-                            <span className="text-lg">{"✅" if bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) else "⬜"}</span>
-                            <span className={cn(["text-sm font-medium",
-                                "text-foreground" if bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) else "text-muted-foreground"
-                            ])}>{str(PATHWAYS_SPEECHES[j])}</span>
-                        </button> for j in range(len(PATHWAYS_SPEECHES))]}
-                    </div>
-                </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Pathways Progress</CardTitle>
+                        <CardDescription>Click a speech to mark it as complete</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Progress value={int(get_completed(members[selected_member]) * 100 / len(PATHWAYS_SPEECHES))} className="h-3 mb-6" />
+                        <div className="flex flex-col gap-2">
+                            {[<button
+                                key={str(j)}
+                                onClick={lambda(e: MouseEvent) -> None { toggle_speech(selected_member, str(PATHWAYS_SPEECHES[j])); }}
+                                className={cn(["flex items-center gap-3 p-3 rounded-xl border text-left w-full transition-all",
+                                    "bg-primary/10 border-primary/30" if bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) else "bg-background border-border hover:bg-muted"
+                                ])}
+                            >
+                                {bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) and <HugeiconsIcon icon={CheckmarkCircle01Icon} strokeWidth={2} className="size-5 text-primary shrink-0" />}
+                                {not bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) and <HugeiconsIcon icon={Circle01Icon} strokeWidth={1.5} className="size-5 text-muted-foreground shrink-0" />}
+                                <span className={cn(["text-sm font-medium",
+                                    "text-foreground" if bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) else "text-muted-foreground"
+                                ])}>{str(PATHWAYS_SPEECHES[j])}</span>
+                            </button> for j in range(len(PATHWAYS_SPEECHES))]}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>}
         </div>
     </div>;

@@ -1,6 +1,11 @@
 import from ..lib.utils { cn }
+import from .ui.card { Card, CardHeader, CardTitle, CardDescription, CardContent }
+import from .ui.button { Button }
+import from .ui.badge { Badge }
+import from .ui.separator { Separator }
+cl import from "@hugeicons/react" { HugeiconsIcon }
+cl import from "@hugeicons/core-free-icons" { PlayIcon, PauseIcon, RefreshIcon, Timer01Icon }
 
-# Speech presets
 glob PRESETS: list = [
     {"name": "Prepared Speech (5-7 min)", "green": 300, "yellow": 360, "red": 420},
     {"name": "Table Topics (1-2 min)", "green": 60, "yellow": 90, "red": 120},
@@ -9,7 +14,6 @@ glob PRESETS: list = [
     {"name": "Custom", "green": 0, "yellow": 0, "red": 0}
 ];
 
-# Mutable ref to track counter - avoids stale closure issue
 glob counter_ref: dict = {"value": 0};
 
 def:pub Timer() -> JsxElement {
@@ -18,16 +22,13 @@ def:pub Timer() -> JsxElement {
     has interval_id: Any = None;
     has selected_preset: int = 0;
 
-    # Sync counter_ref with elapsed on mount/update
     counter_ref["value"] = elapsed;
 
-    # Get current preset thresholds
     preset: Any = PRESETS[selected_preset];
     green_time: Any = preset["green"];
     yellow_time: Any = preset["yellow"];
     red_time: Any = preset["red"];
 
-    # Determine current color
     current_color: str = "none";
     if elapsed >= red_time and red_time > 0 {
         current_color = "red";
@@ -37,7 +38,6 @@ def:pub Timer() -> JsxElement {
         current_color = "green";
     }
 
-    # Format time as MM:SS
     mins: int = elapsed // 60;
     secs: int = elapsed % 60;
     time_display: str = str(mins).zfill(2) + ":" + str(secs).zfill(2);
@@ -83,109 +83,122 @@ def:pub Timer() -> JsxElement {
         }
     }
 
-    # Background color classes based on signal
     bg_class: str = "bg-card";
+    timer_text_class: str = "text-foreground";
     if current_color == "green" {
         bg_class = "bg-green-500";
+        timer_text_class = "text-white";
     } elif current_color == "yellow" {
         bg_class = "bg-yellow-400";
+        timer_text_class = "text-white";
     } elif current_color == "red" {
         bg_class = "bg-red-500";
+        timer_text_class = "text-white";
     }
 
-    # Text color for timer display
-    text_class: str = "text-white" if current_color != "none" else "text-foreground";
+    green_light_class: str = "bg-green-500 shadow-lg shadow-green-500/50 scale-110" if current_color == "green" else "bg-green-500/20";
+    yellow_light_class: str = "bg-yellow-400 shadow-lg shadow-yellow-400/50 scale-110" if current_color == "yellow" else "bg-yellow-400/20";
+    red_light_class: str = "bg-red-500 shadow-lg shadow-red-500/50 scale-110" if current_color == "red" else "bg-red-500/20";
 
-    # Signal light classes
-    green_light_class: str = "bg-green-500 border-green-300 shadow-lg shadow-green-500/50" if current_color == "green" else "bg-green-500/20 border-green-500/30";
-    yellow_light_class: str = "bg-yellow-400 border-yellow-200 shadow-lg shadow-yellow-400/50" if current_color == "yellow" else "bg-yellow-400/20 border-yellow-400/30";
-    red_light_class: str = "bg-red-500 border-red-300 shadow-lg shadow-red-500/50" if current_color == "red" else "bg-red-500/20 border-red-500/30";
-
-    # Format threshold times for display
     gt: int = int(green_time);
     yt: int = int(yellow_time);
     rt: int = int(red_time);
-    g_mins: int = gt // 60;
-    g_secs: int = gt % 60;
-    green_display: str = str(g_mins).zfill(2) + ":" + str(g_secs).zfill(2);
-    y_mins: int = yt // 60;
-    y_secs: int = yt % 60;
-    yellow_display: str = str(y_mins).zfill(2) + ":" + str(y_secs).zfill(2);
-    r_mins: int = rt // 60;
-    r_secs: int = rt % 60;
-    red_display: str = str(r_mins).zfill(2) + ":" + str(r_secs).zfill(2);
+    green_display: str = str(gt // 60).zfill(2) + ":" + str(gt % 60).zfill(2);
+    yellow_display: str = str(yt // 60).zfill(2) + ":" + str(yt % 60).zfill(2);
+    red_display: str = str(rt // 60).zfill(2) + ":" + str(rt % 60).zfill(2);
 
     return <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-2xl mx-auto flex flex-col gap-6">
-            <div className="text-center flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">⏱️ Toastmasters Timer</h1>
-                <p className="text-muted-foreground">Track speech times with visual signals</p>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">Speech Type</h2>
-                <select
-                    value={str(selected_preset)}
-                    onChange={handle_preset_change}
-                    className="w-full p-3 rounded-lg border border-input bg-background text-foreground text-lg"
-                >
-                    {[<option key={str(i)} value={str(i)}>{PRESETS[i]["name"]}</option> for i in range(len(PRESETS))]}
-                </select>
-                {green_time > 0 and <div className="mt-4 flex flex-wrap gap-4 text-sm">
-                    <span className="flex items-center gap-2">
-                        <span className="w-4 h-4 rounded-full bg-green-500"></span>
-                        {green_display}
-                    </span>
-                    <span className="flex items-center gap-2">
-                        <span className="w-4 h-4 rounded-full bg-yellow-400"></span>
-                        {yellow_display}
-                    </span>
-                    <span className="flex items-center gap-2">
-                        <span className="w-4 h-4 rounded-full bg-red-500"></span>
-                        {red_display}
-                    </span>
-                </div>}
-            </div>
-
-            <div className={cn(["rounded-xl border border-border p-8 transition-colors duration-300", bg_class])}>
-                <div className={cn(["text-center font-mono text-8xl md:text-9xl font-bold tracking-wider", text_class])}>
-                    {time_display}
+            <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <HugeiconsIcon icon={Timer01Icon} strokeWidth={1.5} className="size-5 text-primary" />
                 </div>
-                <div className="flex justify-center gap-4 mt-8">
-                    <div className={cn(["w-12 h-12 md:w-16 md:h-16 rounded-full border-4 transition-all", green_light_class])}></div>
-                    <div className={cn(["w-12 h-12 md:w-16 md:h-16 rounded-full border-4 transition-all", yellow_light_class])}></div>
-                    <div className={cn(["w-12 h-12 md:w-16 md:h-16 rounded-full border-4 transition-all", red_light_class])}></div>
+                <div>
+                    <h1 className="text-2xl font-bold text-foreground">Speech Timer</h1>
+                    <p className="text-sm text-muted-foreground">Track speech times with visual signals</p>
                 </div>
             </div>
 
-            <div className="flex justify-center gap-4">
-                {not is_running and <button
+            <Card>
+                <CardHeader>
+                    <CardTitle>Speech Type</CardTitle>
+                    <CardDescription>Select a preset to set the signal thresholds</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                    <select
+                        value={str(selected_preset)}
+                        onChange={handle_preset_change}
+                        className="w-full p-3 rounded-lg border border-input bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-ring"
+                    >
+                        {[<option key={str(i)} value={str(i)}>{PRESETS[i]["name"]}</option> for i in range(len(PRESETS))]}
+                    </select>
+                    {gt > 0 and <div className="flex flex-wrap gap-3">
+                        <Badge variant="outline" className="gap-1.5 px-3 py-1">
+                            <span className="size-2 rounded-full bg-green-500 inline-block"></span>
+                            {green_display}
+                        </Badge>
+                        <Badge variant="outline" className="gap-1.5 px-3 py-1">
+                            <span className="size-2 rounded-full bg-yellow-400 inline-block"></span>
+                            {yellow_display}
+                        </Badge>
+                        <Badge variant="outline" className="gap-1.5 px-3 py-1">
+                            <span className="size-2 rounded-full bg-red-500 inline-block"></span>
+                            {red_display}
+                        </Badge>
+                    </div>}
+                </CardContent>
+            </Card>
+
+            <Card className={cn(["transition-all duration-500", bg_class])}>
+                <CardContent className="py-12 flex flex-col items-center gap-8">
+                    <div className={cn(["font-mono text-8xl md:text-9xl font-bold tracking-wider tabular-nums", timer_text_class])}>
+                        {time_display}
+                    </div>
+                    <div className="flex items-center gap-6">
+                        <div className={cn(["size-14 rounded-full border-2 border-green-500/30 transition-all duration-300", green_light_class])}></div>
+                        <div className={cn(["size-14 rounded-full border-2 border-yellow-400/30 transition-all duration-300", yellow_light_class])}></div>
+                        <div className={cn(["size-14 rounded-full border-2 border-red-500/30 transition-all duration-300", red_light_class])}></div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="flex justify-center gap-3">
+                {not is_running and <Button
                     onClick={handle_start}
-                    className="px-8 py-4 text-xl rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors"
+                    size="lg"
+                    className="gap-2 px-8 bg-green-600 hover:bg-green-700 text-white"
                 >
-                    ▶️ Start
-                </button>}
-                {is_running and <button
+                    <HugeiconsIcon icon={PlayIcon} strokeWidth={2} className="size-5" />
+                    Start
+                </Button>}
+                {is_running and <Button
                     onClick={handle_pause}
-                    className="px-8 py-4 text-xl rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition-colors"
+                    size="lg"
+                    className="gap-2 px-8 bg-yellow-500 hover:bg-yellow-600 text-white"
                 >
-                    ⏸️ Pause
-                </button>}
-                <button
+                    <HugeiconsIcon icon={PauseIcon} strokeWidth={2} className="size-5" />
+                    Pause
+                </Button>}
+                <Button
                     onClick={handle_reset}
-                    className="px-8 py-4 text-xl rounded-lg border border-border bg-background hover:bg-muted text-foreground font-semibold transition-colors"
+                    variant="outline"
+                    size="lg"
+                    className="gap-2 px-8"
                 >
-                    🔄 Reset
-                </button>
+                    <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} className="size-5" />
+                    Reset
+                </Button>
             </div>
 
-            <div className="rounded-xl border border-border bg-card p-4">
-                <div className="text-center text-sm text-muted-foreground flex flex-col gap-1">
-                    <p><strong>🟢 Green:</strong> Minimum time reached — you can wrap up</p>
-                    <p><strong>🟡 Yellow:</strong> Target time — start concluding</p>
-                    <p><strong>🔴 Red:</strong> Maximum time — please stop</p>
-                </div>
-            </div>
+            <Card>
+                <CardContent className="py-4">
+                    <div className="flex flex-col gap-2 text-sm text-muted-foreground text-center">
+                        <p><span className="font-medium text-foreground">🟢 Green</span> — Minimum time reached, you can wrap up</p>
+                        <p><span className="font-medium text-foreground">🟡 Yellow</span> — Target time, start concluding</p>
+                        <p><span className="font-medium text-foreground">🔴 Red</span> — Maximum time, please stop</p>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     </div>;
 }

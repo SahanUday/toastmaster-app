@@ -1,4 +1,11 @@
 import from ..lib.utils { cn }
+import from .ui.card { Card, CardHeader, CardTitle, CardDescription, CardContent }
+import from .ui.button { Button }
+import from .ui.badge { Badge }
+import from .ui.input { Input }
+import from .ui.separator { Separator }
+cl import from "@hugeicons/react" { HugeiconsIcon }
+cl import from "@hugeicons/core-free-icons" { Book01Icon, UserAdd01Icon, Delete01Icon, RefreshIcon, PencilEdit01Icon, CheckmarkCircle01Icon }
 
 glob gram_ref: dict = {"word": "", "speakers": [], "notes": []};
 
@@ -145,154 +152,166 @@ def:pub Grammarian() -> JsxElement {
 
     return <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
-            <div className="text-center flex flex-col gap-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">📝 Grammarian</h1>
-                <p className="text-muted-foreground">Track Word of the Day usage and grammar notes</p>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">Word of the Day</h2>
-                {editing_word and <div className="flex gap-3">
-                    <input
-                        type="text"
-                        value={word_of_day}
-                        onChange={handle_word_change}
-                        placeholder="Enter word of the day..."
-                        className="flex-1 p-3 rounded-lg border border-input bg-background text-foreground text-base"
-                    />
-                    <button
-                        onClick={handle_set_word}
-                        className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
-                    >
-                        Set Word
-                    </button>
-                </div>}
-                {has_word and <div className="flex items-center justify-between p-4 rounded-xl bg-primary/10 border border-primary/30">
-                    <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wide">Today's Word</span>
-                        <span className="text-2xl font-bold text-primary">{word_of_day}</span>
-                    </div>
-                    <button onClick={handle_edit_word} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                        ✏️ Change
-                    </button>
-                </div>}
-            </div>
-
-            <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">Word Usage by Speaker</h2>
-                <div className="flex gap-3 mb-4">
-                    <input
-                        type="text"
-                        value={new_speaker}
-                        onChange={handle_speaker_change}
-                        onKeyDown={handle_speaker_key}
-                        placeholder="Speaker name..."
-                        className="flex-1 p-3 rounded-lg border border-input bg-background text-foreground text-base"
-                    />
-                    <button
-                        onClick={add_speaker}
-                        className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
-                    >
-                        + Add
-                    </button>
+            <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <HugeiconsIcon icon={Book01Icon} strokeWidth={1.5} className="size-5 text-primary" />
                 </div>
+                <div>
+                    <h1 className="text-2xl font-bold text-foreground">Grammarian</h1>
+                    <p className="text-sm text-muted-foreground">Word of the Day + grammar notes</p>
+                </div>
+            </div>
 
-                {not has_speakers and <div className="text-center py-6 text-muted-foreground">
-                    <p>Add speakers to track word usage</p>
-                </div>}
-
-                {[<div key={str(i)} className="flex items-center justify-between p-3 rounded-lg bg-muted mb-2">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
-                            {str(speakers[i]["name"])[0].upper()}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Word of the Day</CardTitle>
+                    <CardDescription>Introduce a word at the start of the meeting</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {editing_word and <div className="flex gap-3">
+                        <Input
+                            value={word_of_day}
+                            onChange={handle_word_change}
+                            placeholder="Enter word of the day..."
+                            className="flex-1"
+                        />
+                        <Button onClick={handle_set_word} className="gap-2">
+                            <HugeiconsIcon icon={CheckmarkCircle01Icon} strokeWidth={2} className="size-4" />
+                            Set Word
+                        </Button>
+                    </div>}
+                    {has_word and <div className="flex items-center justify-between p-4 rounded-xl bg-primary/10 border border-primary/20">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Today's Word</span>
+                            <span className="text-3xl font-bold text-primary">{word_of_day}</span>
                         </div>
-                        <span className="font-medium">{str(speakers[i]["name"])}</span>
+                        <Button variant="ghost" size="sm" onClick={handle_edit_word} className="gap-1.5 text-muted-foreground">
+                            <HugeiconsIcon icon={PencilEdit01Icon} strokeWidth={2} className="size-3.5" />
+                            Change
+                        </Button>
+                    </div>}
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Word Usage by Speaker</CardTitle>
+                    <CardDescription>Track who used the word of the day</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                    <div className="flex gap-3">
+                        <Input
+                            value={new_speaker}
+                            onChange={handle_speaker_change}
+                            onKeyDown={handle_speaker_key}
+                            placeholder="Speaker name..."
+                            className="flex-1"
+                        />
+                        <Button onClick={add_speaker} className="gap-2">
+                            <HugeiconsIcon icon={UserAdd01Icon} strokeWidth={2} className="size-4" />
+                            Add
+                        </Button>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <span className="text-sm text-muted-foreground">Used word:</span>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={lambda(e: MouseEvent) -> None { decrement_word_use(i); }}
-                                className="w-7 h-7 rounded-full border border-border bg-background hover:bg-muted flex items-center justify-center text-sm font-bold"
-                            >
-                                −
-                            </button>
-                            <span className={cn(["w-8 text-center font-bold text-lg",
-                                "text-primary" if int(speakers[i]["used_word"]) > 0 else "text-muted-foreground"
-                            ])}>
-                                {str(int(speakers[i]["used_word"]))}
-                            </span>
-                            <button
-                                onClick={lambda(e: MouseEvent) -> None { increment_word_use(i); }}
-                                className="w-7 h-7 rounded-full bg-primary text-primary-foreground hover:opacity-90 flex items-center justify-center text-sm font-bold"
-                            >
-                                +
-                            </button>
+
+                    {not has_speakers and <div className="text-center py-6 text-muted-foreground text-sm">
+                        <p>Add speakers to track word usage</p>
+                    </div>}
+
+                    {[<div key={str(i)} className="flex items-center justify-between p-3 rounded-xl bg-muted">
+                        <div className="flex items-center gap-3">
+                            <div className="size-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                                {str(speakers[i]["name"])[0].upper()}
+                            </div>
+                            <span className="font-medium">{str(speakers[i]["name"])}</span>
                         </div>
-                        <button
-                            onClick={lambda(e: MouseEvent) -> None { remove_speaker(i); }}
-                            className="text-muted-foreground hover:text-destructive transition-colors ml-2"
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm text-muted-foreground">Used word:</span>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon-sm"
+                                    onClick={lambda(e: MouseEvent) -> None { decrement_word_use(i); }}
+                                >
+                                    −
+                                </Button>
+                                <span className={cn(["w-8 text-center font-bold text-lg",
+                                    "text-primary" if int(speakers[i]["used_word"]) > 0 else "text-muted-foreground"
+                                ])}>
+                                    {str(int(speakers[i]["used_word"]))}
+                                </span>
+                                <Button
+                                    size="icon-sm"
+                                    onClick={lambda(e: MouseEvent) -> None { increment_word_use(i); }}
+                                >
+                                    +
+                                </Button>
+                            </div>
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={lambda(e: MouseEvent) -> None { remove_speaker(i); }}
+                                className="text-muted-foreground hover:text-destructive"
+                            >
+                                <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
+                            </Button>
+                        </div>
+                    </div> for i in range(len(speakers))]}
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Grammar Notes</CardTitle>
+                    <CardDescription>Note good usage and mistakes during the meeting</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-4">
+                    <div className="flex gap-2">
+                        <select
+                            value={note_type}
+                            onChange={handle_note_type_change}
+                            className="p-2.5 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
-                            ✕
-                        </button>
+                            <option value="good">👍 Good</option>
+                            <option value="bad">👎 Mistake</option>
+                        </select>
+                        <Input
+                            value={new_note}
+                            onChange={handle_note_change}
+                            onKeyDown={handle_note_key}
+                            placeholder="Note (e.g. 'Alice used a great metaphor')..."
+                            className="flex-1"
+                        />
+                        <Button onClick={add_note} className="gap-2">Add</Button>
                     </div>
-                </div> for i in range(len(speakers))]}
-            </div>
 
-            <div className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold mb-4">Grammar Notes</h2>
-                <div className="flex gap-2 mb-3">
-                    <select
-                        value={note_type}
-                        onChange={handle_note_type_change}
-                        className="p-3 rounded-lg border border-input bg-background text-foreground text-sm"
-                    >
-                        <option value="good">👍 Good</option>
-                        <option value="bad">👎 Mistake</option>
-                    </select>
-                    <input
-                        type="text"
-                        value={new_note}
-                        onChange={handle_note_change}
-                        onKeyDown={handle_note_key}
-                        placeholder="Note (e.g. 'Alice used a great metaphor')..."
-                        className="flex-1 p-3 rounded-lg border border-input bg-background text-foreground text-sm"
-                    />
-                    <button
-                        onClick={add_note}
-                        className="px-4 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity text-sm"
-                    >
-                        + Add
-                    </button>
-                </div>
+                    {not has_notes and <div className="text-center py-4 text-muted-foreground text-sm">
+                        <p>No notes yet. Add grammar observations above.</p>
+                    </div>}
 
-                {not has_notes and <div className="text-center py-4 text-muted-foreground text-sm">
-                    <p>No notes yet. Add grammar observations above.</p>
-                </div>}
-
-                {[<div key={str(i)} className={cn(["flex items-start justify-between p-3 rounded-lg mb-2",
-                    "bg-green-500/10 border border-green-500/20" if str(notes[i]["type"]) == "good" else "bg-destructive/10 border border-destructive/20"
-                ])}>
-                    <div className="flex items-start gap-2">
-                        <span>{"👍" if str(notes[i]["type"]) == "good" else "👎"}</span>
-                        <span className="text-sm">{str(notes[i]["text"])}</span>
-                    </div>
-                    <button
-                        onClick={lambda(e: MouseEvent) -> None { remove_note(i); }}
-                        className="text-muted-foreground hover:text-destructive transition-colors ml-2 shrink-0"
-                    >
-                        ✕
-                    </button>
-                </div> for i in range(len(notes))]}
-            </div>
+                    {[<div key={str(i)} className={cn(["flex items-start justify-between p-3 rounded-xl border",
+                        "bg-green-500/5 border-green-500/20" if str(notes[i]["type"]) == "good" else "bg-destructive/5 border-destructive/20"
+                    ])}>
+                        <div className="flex items-start gap-2">
+                            <span>{"👍" if str(notes[i]["type"]) == "good" else "👎"}</span>
+                            <span className="text-sm">{str(notes[i]["text"])}</span>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={lambda(e: MouseEvent) -> None { remove_note(i); }}
+                            className="text-muted-foreground hover:text-destructive shrink-0"
+                        >
+                            <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-3.5" />
+                        </Button>
+                    </div> for i in range(len(notes))]}
+                </CardContent>
+            </Card>
 
             <div className="flex justify-center">
-                <button
-                    onClick={handle_reset}
-                    className="px-6 py-3 rounded-lg border border-border bg-background hover:bg-muted text-foreground font-semibold transition-colors"
-                >
-                    🔄 Reset All
-                </button>
+                <Button variant="outline" onClick={handle_reset} className="gap-2 text-destructive hover:text-destructive">
+                    <HugeiconsIcon icon={RefreshIcon} strokeWidth={2} className="size-4" />
+                    Reset All
+                </Button>
             </div>
         </div>
     </div>;
