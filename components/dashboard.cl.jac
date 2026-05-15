@@ -4,7 +4,7 @@ import from .ui.badge { Badge }
 import from .ui.button { Button }
 import from .ui.separator { Separator }
 cl import from "@hugeicons/react" { HugeiconsIcon }
-cl import from "@hugeicons/core-free-icons" { Timer01Icon, Calculator01Icon, Book01Icon, MicrophoneIcon, CalendarAdd01Icon, Trophy01Icon, ArrowRight01Icon }
+cl import from "@hugeicons/core-free-icons" { Timer01Icon, Calculator01Icon, Book01Icon, Microphone01Icon, CalendarAdd01Icon, Trophy01Icon, ArrowRight01Icon }
 
 def:pub Dashboard(onNavigate: Any) -> JsxElement {
     def go(page: str) -> None {
@@ -61,7 +61,7 @@ def:pub Dashboard(onNavigate: Any) -> JsxElement {
                                         {str(tools[i]["icon"]) == "timer" and <HugeiconsIcon icon={Timer01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
                                         {str(tools[i]["icon"]) == "calc" and <HugeiconsIcon icon={Calculator01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
                                         {str(tools[i]["icon"]) == "book" and <HugeiconsIcon icon={Book01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
-                                        {str(tools[i]["icon"]) == "mic" and <HugeiconsIcon icon={MicrophoneIcon} strokeWidth={1.5} className="size-6 text-primary" />}
+                                        {str(tools[i]["icon"]) == "mic" and <HugeiconsIcon icon={Microphone01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
                                         {str(tools[i]["icon"]) == "calendar" and <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
                                         {str(tools[i]["icon"]) == "trophy" and <HugeiconsIcon icon={Trophy01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
                                     </div>
