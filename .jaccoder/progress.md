@@ -1,31 +1,30 @@
 # Project: JaseciLabs TM Manager
-## Status: IN PROGRESS
+## Status: DONE
 ## Plan
 1. [x] Analyze project structure
-2. [x] Build Timer page for Timer role
+2. [x] Build Timer page
 3. [x] Build Ah-Counter page
-4. [x] Build Meeting Scheduler + Role Assignment (combined as Meeting Planner)
+4. [x] Build Meeting Planner (scheduler + role assignment)
+5. [x] Build Grammarian page
+6. [x] Build Table Topics Tracker
+7. [x] Build Member Progress tracker
+8. [x] Build Home Dashboard
 
 ## Files
-- components/timer.cl.jac — Timer with presets, color signals, start/pause/reset
-- frontend.cl.jac — Main app entry, renders Timer
-
-## Timer Features
-- Speech type presets (5-7min, 1-2min Table Topics, 2-3min Eval, 4-6min Ice Breaker)
-- Big digital display (MM:SS)
-- Green/Yellow/Red signal lights
-- Background color changes at thresholds
-- Start/Pause/Reset controls
-
-## Issues
-- Sandbox pod connectivity issue - commands failing
-- Timer stuck at 00:01 - FIXED (stale closure issue)
+- components/dashboard.cl.jac — Home dashboard with tool cards + role reference
+- components/timer.cl.jac — Timer with presets, color signals
+- components/ah_counter.cl.jac — Filler word counter per speaker
+- components/grammarian.cl.jac — Word of the Day + grammar notes
+- components/table_topics.cl.jac — Impromptu speaker tracker with live timer
+- components/meeting_planner.cl.jac — Meeting scheduler + role assignment
+- components/member_progress.cl.jac — Pathways speech progress tracker
+- frontend.cl.jac — Nav + page routing
 
 ## Learnings
 - Dict access returns Any type - need int() cast for arithmetic
-- UI components use props: Any pattern
-- cn() takes list of classes
-- setInterval closure captures state at creation time - use glob dict as mutable ref
+- glob must be top-level, not inside functions
+- setInterval closure captures state - use glob dict as mutable ref
+- Hyphen in filenames breaks dot-notation imports - use underscores
 
 ## Last Action
-Fixed timer stale closure bug - using glob counter_ref dict to track value.
+All 8 features complete. App running on port 8007.
