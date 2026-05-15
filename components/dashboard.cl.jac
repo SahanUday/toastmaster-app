@@ -4,7 +4,7 @@ import from .ui.badge { Badge }
 import from .ui.button { Button }
 import from .ui.separator { Separator }
 cl import from "@hugeicons/react" { HugeiconsIcon }
-cl import from "@hugeicons/core-free-icons" { Timer01Icon, Calculator01Icon, Book01Icon, Mic01Icon, CalendarAdd01Icon, Trophy01Icon, ArrowRight01Icon }
+cl import from "@hugeicons/core-free-icons" { Timer01Icon, Calculator01Icon, Book01Icon, Mic01Icon, CalendarAdd01Icon, ChampionIcon, ArrowRight01Icon }
 
 def:pub Dashboard(onNavigate: Any) -> JsxElement {
     def go(page: str) -> None {
@@ -63,7 +63,7 @@ def:pub Dashboard(onNavigate: Any) -> JsxElement {
                                         {str(tools[i]["icon"]) == "book" and <HugeiconsIcon icon={Book01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
                                         {str(tools[i]["icon"]) == "mic" and <HugeiconsIcon icon={Mic01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
                                         {str(tools[i]["icon"]) == "calendar" and <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
-                                        {str(tools[i]["icon"]) == "trophy" and <HugeiconsIcon icon={Trophy01Icon} strokeWidth={1.5} className="size-6 text-primary" />}
+                                        {str(tools[i]["icon"]) == "trophy" and <HugeiconsIcon icon={ChampionIcon} strokeWidth={1.5} className="size-6 text-primary" />}
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <div className="flex items-center gap-2">

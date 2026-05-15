@@ -6,7 +6,7 @@ import from .ui.input { Input }
 import from .ui.progress { Progress }
 import from .ui.separator { Separator }
 cl import from "@hugeicons/react" { HugeiconsIcon }
-cl import from "@hugeicons/core-free-icons" { Trophy01Icon, UserAdd01Icon, Delete01Icon, ArrowLeft01Icon, CheckmarkCircle01Icon, Circle01Icon }
+cl import from "@hugeicons/core-free-icons" { ChampionIcon, UserAdd01Icon, Delete01Icon, ArrowLeft01Icon, CheckmarkCircle01Icon, CircleIcon }
 
 glob PATHWAYS_SPEECHES: list = [
     "Ice Breaker",
@@ -116,7 +116,7 @@ def:pub MemberProgress() -> JsxElement {
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
             <div className="flex items-center gap-3">
                 <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <HugeiconsIcon icon={Trophy01Icon} strokeWidth={1.5} className="size-5 text-primary" />
+                    <HugeiconsIcon icon={ChampionIcon} strokeWidth={1.5} className="size-5 text-primary" />
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Member Progress</h1>
@@ -150,7 +150,7 @@ def:pub MemberProgress() -> JsxElement {
                 {not has_members and <Card>
                     <CardContent className="py-16 text-center flex flex-col items-center gap-3">
                         <div className="size-16 rounded-2xl bg-muted flex items-center justify-center">
-                            <HugeiconsIcon icon={Trophy01Icon} strokeWidth={1} className="size-8 text-muted-foreground" />
+                            <HugeiconsIcon icon={ChampionIcon} strokeWidth={1} className="size-8 text-muted-foreground" />
                         </div>
                         <p className="font-medium text-muted-foreground">No members yet</p>
                         <p className="text-sm text-muted-foreground">Add club members to track their Pathways progress</p>
@@ -230,7 +230,7 @@ def:pub MemberProgress() -> JsxElement {
                                 ])}
                             >
                                 {bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) and <HugeiconsIcon icon={CheckmarkCircle01Icon} strokeWidth={2} className="size-5 text-primary shrink-0" />}
-                                {not bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) and <HugeiconsIcon icon={Circle01Icon} strokeWidth={1.5} className="size-5 text-muted-foreground shrink-0" />}
+                                {not bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) and <HugeiconsIcon icon={CircleIcon} strokeWidth={1.5} className="size-5 text-muted-foreground shrink-0" />}
                                 <span className={cn(["text-sm font-medium",
                                     "text-foreground" if bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) else "text-muted-foreground"
                                 ])}>{str(PATHWAYS_SPEECHES[j])}</span>
