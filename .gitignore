@@ -21,3 +21,5 @@ dist/
 .jacbuilder/
 .jac-preview.log
 .jac-ide-bashrc
+
+.jac-template-info.json

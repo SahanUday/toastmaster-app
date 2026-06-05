@@ -49,9 +49,6 @@ lib_imports = ["import tailwindcss from '@tailwindcss/vite'"]
 [plugins.client.configs.tailwind]
 content = ["./src/**/*.{jac,tsx,jsx}"]
 
-
-
-
 [jac-shadcn]
 style = "nova"
 baseColor = "neutral"
