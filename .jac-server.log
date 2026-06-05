@@ -1,3 +1,36 @@
-Error: Command blocked — 'jac start' is not allowed because a preview server is already running.
-The preview is managed by JacBuilder and runs inside the sandbox pod at /app.
-Use browser_open() to test the app, or kubectl exec to run diagnostic commands inside the sandbox.
+  ✔ Initial client compilation completed
+  VITE v6.4.3  ready in 920 ms
+
+  ✔ Vite dev server ready
+INFO - Admin portal endpoints registered at /admin
+INFO - LLM telemetry: litellm CustomLogger registered
+INFO - LLM telemetry: byllm agent callback registered
+INFO - LLM telemetry endpoints registered: /admin/llm/telemetry/{summary,traces,traces/{id},filters}
+INFO - Log query endpoints registered: /admin/logs/{,services,trace/{id}}
+INFO - No emailer provider configured - email features disabled. Set [plugins.scale.emailer] provider = 'smtp' (or a custom 'module.path:ClassName') in jac.toml to enable.
+INFO - APScheduler not installed — dynamic scheduling disabled. Install with: pip install jac-scale[scheduler]
+  Port 8001 is in use, using port 8003 instead
+
+  JAC DEV SERVER v0.15.5
+
+  ➜  Local:     http://localhost:8003/
+  ➜  Network:   http://192.168.121.194:8003/
+
+  🚀 Server ready
+
+  JAC DEV SERVER v0.15.5
+
+  ➜  Local:     http://localhost:8003/
+  ➜  Network:   http://192.168.121.194:8003/
+
+  🚀 Server ready
+
+  Mode: Development (with HMR)
+    Vite:  http://localhost:8000/
+    API:   http://localhost:8003/
+
+👀 Watching for changes...
+   Monitoring: **/*.jac (66 files)
+
+✔ Recompiled: ./components/member_progress.cl.jac -> member_progress.js
+command terminated with exit code 137

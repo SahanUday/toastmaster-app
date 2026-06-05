@@ -1,9 +1,7 @@
-import from ..lib.utils { cn }
-import from .ui.card { Card, CardHeader, CardTitle, CardDescription, CardContent }
+import from .ui.card { Card, CardContent }
 import from .ui.button { Button }
 import from .ui.badge { Badge }
 import from .ui.input { Input }
-import from .ui.separator { Separator }
 import from .ui.tabs { Tabs, TabsList, TabsTrigger, TabsContent }
 cl import from "@hugeicons/react" { HugeiconsIcon }
 cl import from "@hugeicons/core-free-icons" { CalendarAdd01Icon, UserAdd01Icon, Delete01Icon, ArrowLeft01Icon, UserIcon, CalendarCheckIn01Icon }
@@ -92,11 +90,11 @@ def:pub MeetingPlanner() -> JsxElement {
     def assign_role(meeting_idx: int, role: str, member_name: str) -> None {
         updated: list = [];
         for i in range(len(meetings)) {
-            m: Any = meetings[i];
+            m: any = meetings[i];
             if i == meeting_idx {
                 new_roles: dict = {};
                 for j in range(len(ROLES)) {
-                    r: Any = ROLES[j];
+                    r: any = ROLES[j];
                     new_roles[r] = m["roles"][r];
                 }
                 new_roles[role] = member_name;
@@ -126,95 +124,91 @@ def:pub MeetingPlanner() -> JsxElement {
     has_meetings: bool = len(meetings) > 0;
     show_detail: bool = show_schedule and selected_meeting >= 0 and selected_meeting < len(meetings);
 
-    return <div className="min-h-screen bg-background p-4 md:p-8">
-        <div className="max-w-4xl mx-auto flex flex-col gap-6">
-            <div className="flex items-center gap-3">
-                <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={1.5} className="size-5 text-primary" />
+    return <div className="min-h-screen bg-background">
+        <div className="relative overflow-hidden hero-gradient px-6 py-10 md:py-14">
+            <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-4 right-10 size-32 rounded-full bg-amber-400/30 blur-2xl"></div>
+            </div>
+            <div className="relative max-w-4xl mx-auto flex items-center gap-4">
+                <div className="size-12 rounded-2xl bg-amber-400 flex items-center justify-center text-amber-950 shadow-lg shadow-amber-400/40">
+                    <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={1.5} className="size-6" />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Meeting Planner</h1>
-                    <p className="text-sm text-muted-foreground">Schedule meetings and assign roles</p>
+                    <h1 className="text-2xl font-bold text-white">Meeting Planner</h1>
+                    <p className="text-white/60 text-sm">Schedule meetings and assign roles</p>
                 </div>
             </div>
+        </div>
 
+        <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-6">
             {not show_detail and <Tabs defaultValue="members">
-                <TabsList>
-                    <TabsTrigger value="members">
+                <TabsList className="w-full">
+                    <TabsTrigger value="members" className="flex-1">
                         <HugeiconsIcon icon={UserIcon} strokeWidth={2} className="size-4 mr-1.5" />
                         {"Members (" + str(len(members)) + ")"}
                     </TabsTrigger>
-                    <TabsTrigger value="meetings">
+                    <TabsTrigger value="meetings" className="flex-1">
                         <HugeiconsIcon icon={CalendarCheckIn01Icon} strokeWidth={2} className="size-4 mr-1.5" />
                         {"Meetings (" + str(len(meetings)) + ")"}
                     </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="members" className="mt-4 flex flex-col gap-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Add Member</CardTitle>
-                            <CardDescription>Add your club members to assign them roles</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex gap-3">
-                                <Input
-                                    value={new_member}
-                                    onChange={handle_member_change}
-                                    onKeyDown={handle_member_key}
-                                    placeholder="Member name..."
-                                    className="flex-1"
-                                />
-                                <Button onClick={add_member} className="gap-2">
-                                    <HugeiconsIcon icon={UserAdd01Icon} strokeWidth={2} className="size-4" />
-                                    Add
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
+                        <h3 className="font-semibold text-sm text-foreground mb-3">Add Club Member</h3>
+                        <div className="flex gap-3">
+                            <Input
+                                value={new_member}
+                                onChange={handle_member_change}
+                                onKeyDown={handle_member_key}
+                                placeholder="Member name..."
+                                className="flex-1"
+                            />
+                            <button
+                                onClick={add_member}
+                                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-colors"
+                            >
+                                <HugeiconsIcon icon={UserAdd01Icon} strokeWidth={2} className="size-4" />
+                                Add
+                            </button>
+                        </div>
+                    </div>
 
-                    {not has_members and <Card>
-                        <CardContent className="py-16 text-center flex flex-col items-center gap-3">
-                            <div className="size-16 rounded-2xl bg-muted flex items-center justify-center">
-                                <HugeiconsIcon icon={UserIcon} strokeWidth={1} className="size-8 text-muted-foreground" />
-                            </div>
-                            <p className="font-medium text-muted-foreground">No members yet</p>
-                            <p className="text-sm text-muted-foreground">Add your club members above</p>
-                        </CardContent>
-                    </Card>}
+                    {not has_members and <div className="bg-card rounded-2xl border border-dashed border-border p-16 text-center flex flex-col items-center gap-3">
+                        <div className="size-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                            <HugeiconsIcon icon={UserIcon} strokeWidth={1} className="size-8 text-primary" />
+                        </div>
+                        <p className="font-semibold text-foreground">No members yet</p>
+                        <p className="text-sm text-muted-foreground">Add your club members to assign them to roles</p>
+                    </div>}
 
-                    {has_members and <Card>
-                        <CardHeader>
-                            <CardTitle>{"Club Members (" + str(len(members)) + ")"}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-2">
-                            {[<div key={str(i)} className="flex items-center justify-between p-3 rounded-xl bg-muted">
+                    {has_members and <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                        <div className="px-5 py-4 border-b border-border bg-muted/30">
+                            <h3 className="font-semibold text-foreground">{"Club Members (" + str(len(members)) + ")"}</h3>
+                        </div>
+                        <div className="p-4 flex flex-col gap-2">
+                            {[<div key={str(i)} className="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/60">
                                 <div className="flex items-center gap-3">
                                     <div className="size-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
                                         {str(members[i]["name"])[0].upper()}
                                     </div>
-                                    <span className="font-medium">{str(members[i]["name"])}</span>
+                                    <span className="font-medium text-sm">{str(members[i]["name"])}</span>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="icon-sm"
+                                <button
                                     onClick={lambda(e: MouseEvent) -> None { remove_member(i); }}
-                                    className="text-muted-foreground hover:text-destructive"
+                                    className="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                                 >
                                     <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
-                                </Button>
+                                </button>
                             </div> for i in range(len(members))]}
-                        </CardContent>
-                    </Card>}
+                        </div>
+                    </div>}
                 </TabsContent>
 
                 <TabsContent value="meetings" className="mt-4 flex flex-col gap-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Create Meeting</CardTitle>
-                            <CardDescription>Schedule a new meeting and assign roles</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-3">
+                    <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
+                        <h3 className="font-semibold text-sm text-foreground mb-3">Schedule a Meeting</h3>
+                        <div className="flex flex-col gap-3">
                             <Input
                                 type="date"
                                 value={new_date}
@@ -223,112 +217,109 @@ def:pub MeetingPlanner() -> JsxElement {
                             <Input
                                 value={new_theme}
                                 onChange={handle_theme_change}
-                                placeholder="Meeting theme (optional)..."
+                                placeholder="Meeting theme (optional, e.g. 'Leadership')..."
                             />
-                            <Button onClick={add_meeting} className="gap-2">
+                            <button
+                                onClick={add_meeting}
+                                className="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition-colors shadow-sm"
+                            >
                                 <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={2} className="size-4" />
                                 Create Meeting
-                            </Button>
-                        </CardContent>
-                    </Card>
+                            </button>
+                        </div>
+                    </div>
 
-                    {not has_meetings and <Card>
-                        <CardContent className="py-16 text-center flex flex-col items-center gap-3">
-                            <div className="size-16 rounded-2xl bg-muted flex items-center justify-center">
-                                <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={1} className="size-8 text-muted-foreground" />
-                            </div>
-                            <p className="font-medium text-muted-foreground">No meetings yet</p>
-                            <p className="text-sm text-muted-foreground">Create your first meeting above</p>
-                        </CardContent>
-                    </Card>}
+                    {not has_meetings and <div className="bg-card rounded-2xl border border-dashed border-border p-16 text-center flex flex-col items-center gap-3">
+                        <div className="size-16 rounded-2xl bg-amber-500/10 flex items-center justify-center">
+                            <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={1} className="size-8 text-amber-600" />
+                        </div>
+                        <p className="font-semibold text-foreground">No meetings scheduled</p>
+                        <p className="text-sm text-muted-foreground">Create your first meeting above</p>
+                    </div>}
 
-                    {has_meetings and <Card>
-                        <CardHeader>
-                            <CardTitle>Upcoming Meetings</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex flex-col gap-2">
-                            {[<div key={str(i)} className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30 cursor-pointer hover:bg-muted transition-colors"
+                    {has_meetings and <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                        <div className="px-5 py-4 border-b border-border bg-muted/30">
+                            <h3 className="font-semibold text-foreground">Scheduled Meetings</h3>
+                        </div>
+                        <div className="p-4 flex flex-col gap-3">
+                            {[<button key={str(i)}
+                                className="w-full flex items-center justify-between p-4 rounded-xl border border-border bg-muted/20 cursor-pointer hover:bg-muted hover:border-primary/30 transition-all text-left card-hover"
                                 onClick={lambda(e: MouseEvent) -> None { selected_meeting = i; show_schedule = True; }}>
-                                <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                                        <HugeiconsIcon icon={CalendarCheckIn01Icon} strokeWidth={1.5} className="size-5 text-primary" />
+                                <div className="flex items-center gap-4">
+                                    <div className="size-12 rounded-xl bg-amber-500/10 flex flex-col items-center justify-center border border-amber-200/50">
+                                        <span className="text-xs font-bold text-amber-700 leading-none">{str(meetings[i]["date"])[5:7]}</span>
+                                        <span className="text-lg font-black text-amber-700 leading-none">{str(meetings[i]["date"])[8:10]}</span>
                                     </div>
                                     <div className="flex flex-col gap-0.5">
-                                        <span className="font-semibold">{str(meetings[i]["date"])}</span>
+                                        <span className="font-semibold text-sm text-foreground">{str(meetings[i]["date"])}</span>
                                         <span className="text-xs text-muted-foreground">{"Theme: " + str(meetings[i]["theme"]) if meetings[i]["theme"] else "No theme set"}</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">Assign roles →</Badge>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
+                                    <span className="text-xs font-medium text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg">Assign roles →</span>
+                                    <button
                                         onClick={lambda(e: MouseEvent) -> None { e.stopPropagation(); remove_meeting(i); }}
-                                        className="text-muted-foreground hover:text-destructive"
+                                        className="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                                     >
                                         <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
-                                    </Button>
+                                    </button>
                                 </div>
-                            </div> for i in range(len(meetings))]}
-                        </CardContent>
-                    </Card>}
+                            </button> for i in range(len(meetings))]}
+                        </div>
+                    </div>}
                 </TabsContent>
             </Tabs>}
 
-            {show_detail and <div className="flex flex-col gap-4">
+            {show_detail and <div className="flex flex-col gap-5">
                 <div className="flex items-center gap-3">
-                    <Button
-                        variant="ghost"
-                        size="sm"
+                    <button
                         onClick={lambda(e: MouseEvent) -> None { show_schedule = False; }}
-                        className="gap-1.5"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-card border border-border hover:bg-muted text-foreground rounded-lg text-sm font-medium transition-colors"
                     >
                         <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="size-4" />
                         Back
-                    </Button>
-                    <Separator orientation="vertical" className="h-5" />
-                    <div>
-                        <span className="font-semibold">{str(meetings[selected_meeting]["date"])}</span>
-                        {meetings[selected_meeting]["theme"] and <span className="text-sm text-muted-foreground ml-2">{"— " + str(meetings[selected_meeting]["theme"])}</span>}
+                    </button>
+                    <div className="flex-1 flex items-center gap-3">
+                        <div className="size-1.5 rounded-full bg-border"></div>
+                        <span className="font-semibold text-foreground">{str(meetings[selected_meeting]["date"])}</span>
+                        {meetings[selected_meeting]["theme"] and <span className="text-sm text-muted-foreground">{"— " + str(meetings[selected_meeting]["theme"])}</span>}
                     </div>
                 </div>
 
-                {not has_members and <Card>
-                    <CardContent className="py-8 text-center flex flex-col items-center gap-3">
-                        <p className="text-muted-foreground">Add members first to assign roles.</p>
-                        <Button
-                            size="sm"
-                            onClick={lambda(e: MouseEvent) -> None { show_schedule = False; }}
-                        >
-                            Go to Members
-                        </Button>
-                    </CardContent>
-                </Card>}
+                {not has_members and <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center flex flex-col items-center gap-3">
+                    <p className="text-amber-800 font-medium">Add members first to assign roles.</p>
+                    <button
+                        onClick={lambda(e: MouseEvent) -> None { show_schedule = False; }}
+                        className="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 transition-colors"
+                    >
+                        Go to Members Tab
+                    </button>
+                </div>}
 
-                {has_members and <Card>
-                    <CardHeader>
-                        <CardTitle>Role Assignments</CardTitle>
-                        <CardDescription>Assign a member to each role for this meeting</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-3">
-                        {[<div key={str(k)} className="flex items-center gap-4">
+                {has_members and <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
+                    <div className="px-5 py-4 border-b border-border bg-muted/30">
+                        <h3 className="font-semibold text-foreground">Role Assignments</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">Assign a member to each role for this meeting</p>
+                    </div>
+                    <div className="p-5 flex flex-col gap-3">
+                        {[<div key={str(k)} className="flex items-center gap-4 p-3 rounded-xl bg-muted/30 border border-border/60">
                             <div className="w-52 shrink-0">
-                                <span className="text-sm font-medium">{str(ROLES[k])}</span>
+                                <span className="text-sm font-semibold text-foreground">{str(ROLES[k])}</span>
                             </div>
                             <select
                                 value={str(meetings[selected_meeting]["roles"][ROLES[k]])}
                                 onChange={lambda(e: ChangeEvent) -> None { assign_role(selected_meeting, str(ROLES[k]), e.target.value); }}
-                                className="flex-1 p-2.5 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                                className="flex-1 p-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                             >
                                 <option value="">— Unassigned —</option>
                                 {[<option key={str(m)} value={str(members[m]["name"])}>{str(members[m]["name"])}</option> for m in range(len(members))]}
                             </select>
-                            {str(meetings[selected_meeting]["roles"][ROLES[k]]) and <Badge variant="secondary" className="shrink-0">
+                            {str(meetings[selected_meeting]["roles"][ROLES[k]]) and <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg shrink-0">
                                 {str(meetings[selected_meeting]["roles"][ROLES[k]])}
-                            </Badge>}
+                            </span>}
                         </div> for k in range(len(ROLES))]}
-                    </CardContent>
-                </Card>}
+                    </div>
+                </div>}
             </div>}
         </div>
     </div>;
