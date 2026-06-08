@@ -1,10 +1,10 @@
-import from .ui.card { Card, CardContent }
 import from .ui.button { Button }
 import from .ui.badge { Badge }
 import from .ui.input { Input }
 import from .ui.progress { Progress }
 cl import from "@hugeicons/react" { HugeiconsIcon }
 cl import from "@hugeicons/core-free-icons" { ChampionIcon, UserAdd01Icon, Delete01Icon, ArrowLeft01Icon, CheckmarkCircle01Icon, CircleIcon }
+sv import from ..services.progress { get_progress_data, add_progress_member, remove_progress_member, toggle_progress_speech }
 
 glob PATHWAYS_SPEECHES: list = [
     "Ice Breaker",
@@ -24,94 +24,58 @@ glob PATHWAYS_SPEECHES: list = [
     "Level 3 Complete"
 ];
 
-glob progress_ref: dict = {"members": []};
-
 def:pub MemberProgress() -> JsxElement {
     has members: list = [];
+    has loading: bool = True;
     has new_member: str = "";
     has selected_member: int = -1;
 
     async can with entry {
-        saved: any = localStorage.getItem("tm_progress");
-        if saved {
-            parsed: any = JSON.parse(str(saved));
-            progress_ref["members"] = list(parsed);
-            members = list(parsed);
+        data: any = await get_progress_data();
+        if data {
+            members = list(data);
         }
-    }
-
-    def save_storage() -> None {
-        localStorage.setItem("tm_progress", JSON.stringify(progress_ref["members"]));
+        loading = False;
     }
 
     def handle_name_change(e: ChangeEvent) -> None {
         new_member = e.target.value;
     }
 
-    def add_member(e: MouseEvent) -> None {
+    async def do_add_member -> None {
         if new_member {
+            name: str = new_member;
+            new_member = "";
             speeches: dict = {};
             for i in range(len(PATHWAYS_SPEECHES)) {
                 speeches[PATHWAYS_SPEECHES[i]] = False;
             }
-            m: dict = {"name": new_member, "speeches": speeches};
-            updated: list = members + [m];
-            progress_ref["members"] = updated;
-            members = updated;
-            new_member = "";
-            save_storage();
+            data: any = await add_progress_member(name, speeches);
+            if data {
+                members = list(data);
+            }
         }
     }
 
     def handle_key(e: KeyboardEvent) -> None {
-        if e.key == "Enter" and new_member {
-            speeches: dict = {};
-            for i in range(len(PATHWAYS_SPEECHES)) {
-                speeches[PATHWAYS_SPEECHES[i]] = False;
-            }
-            m: dict = {"name": new_member, "speeches": speeches};
-            updated: list = members + [m];
-            progress_ref["members"] = updated;
-            members = updated;
-            new_member = "";
-            save_storage();
+        if e.key == "Enter" {
+            do_add_member();
         }
     }
 
-    def toggle_speech(member_idx: int, speech: str) -> None {
-        updated: list = [];
-        for i in range(len(members)) {
-            mb: any = members[i];
-            if i == member_idx {
-                new_speeches: dict = {};
-                for j in range(len(PATHWAYS_SPEECHES)) {
-                    sp: any = PATHWAYS_SPEECHES[j];
-                    new_speeches[sp] = mb["speeches"][sp];
-                }
-                new_speeches[speech] = not bool(mb["speeches"][speech]);
-                updated = updated + [{"name": mb["name"], "speeches": new_speeches}];
-            } else {
-                updated = updated + [mb];
-            }
+    async def do_toggle_speech(member_id: str, speech: str) -> None {
+        data: any = await toggle_progress_speech(member_id, speech);
+        if data {
+            members = list(data);
         }
-        progress_ref["members"] = updated;
-        members = updated;
-        save_storage();
     }
 
-    def remove_member(idx: int) -> None {
-        updated: list = [];
-        for i in range(len(members)) {
-            if i != idx {
-                updated = updated + [members[i]];
-            }
+    async def do_remove_member(member_id: str) -> None {
+        data: any = await remove_progress_member(member_id);
+        if data {
+            members = list(data);
         }
-        progress_ref["members"] = updated;
-        members = updated;
-        if selected_member == idx {
-            selected_member = -1;
-        }
-        save_storage();
+        selected_member = -1;
     }
 
     def get_completed(mb: any) -> int {
@@ -140,17 +104,22 @@ def:pub MemberProgress() -> JsxElement {
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-white">Member Progress</h1>
-                    <p className="text-white/60 text-sm">Track Pathways speech completions</p>
+                    <p className="text-white/60 text-sm">Track Pathways speech completions — shared across all devices</p>
                 </div>
-                {has_members and <div className="ml-auto flex items-center gap-2 bg-white/10 border border-white/20 rounded-xl px-3 py-1.5">
-                    <span className="text-white/70 text-xs">Members:</span>
-                    <span className="text-white font-bold text-sm">{str(len(members))}</span>
-                </div>}
+                <div className="ml-auto flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 rounded-xl px-3 py-1.5">
+                    <span className="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="text-emerald-300 text-xs font-medium">Live Sync</span>
+                </div>
             </div>
         </div>
 
         <div className="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-6">
-            {not show_detail and <div className="flex flex-col gap-4">
+            {loading and <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <div className="size-10 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                <p className="text-muted-foreground text-sm">Loading member data...</p>
+            </div>}
+
+            {not loading and not show_detail and <div className="flex flex-col gap-4">
                 <div className="bg-card rounded-2xl border border-border p-5 shadow-sm">
                     <h3 className="font-semibold text-sm text-foreground mb-3">Add Member</h3>
                     <div className="flex gap-3">
@@ -162,7 +131,7 @@ def:pub MemberProgress() -> JsxElement {
                             className="flex-1"
                         />
                         <button
-                            onClick={add_member}
+                            onClick={do_add_member}
                             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-colors"
                         >
                             <HugeiconsIcon icon={UserAdd01Icon} strokeWidth={2} className="size-4" />
@@ -205,7 +174,7 @@ def:pub MemberProgress() -> JsxElement {
                 </div>}
             </div>}
 
-            {show_detail and <div className="flex flex-col gap-5">
+            {not loading and show_detail and <div className="flex flex-col gap-5">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <button
@@ -226,7 +195,7 @@ def:pub MemberProgress() -> JsxElement {
                         </div>
                     </div>
                     <button
-                        onClick={lambda(e: MouseEvent) -> None { remove_member(selected_member); }}
+                        onClick={lambda(e: MouseEvent) -> None { do_remove_member(str(members[selected_member]["id"])); }}
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-card border border-destructive/30 hover:bg-destructive/5 text-destructive rounded-lg text-xs font-medium transition-colors"
                     >
                         <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-3.5" />
@@ -246,7 +215,7 @@ def:pub MemberProgress() -> JsxElement {
                     <div className="p-4 flex flex-col gap-2">
                         {[<button
                             key={str(j)}
-                            onClick={lambda(e: MouseEvent) -> None { toggle_speech(selected_member, str(PATHWAYS_SPEECHES[j])); }}
+                            onClick={lambda(e: MouseEvent) -> None { do_toggle_speech(str(members[selected_member]["id"]), str(PATHWAYS_SPEECHES[j])); }}
                             className={"flex items-center gap-3 p-3 rounded-xl border text-left w-full transition-all " + ("bg-primary/10 border-primary/30 shadow-sm" if bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) else "bg-background border-border hover:bg-muted")}
                         >
                             {bool(members[selected_member]["speeches"][PATHWAYS_SPEECHES[j]]) and <HugeiconsIcon icon={CheckmarkCircle01Icon} strokeWidth={2} className="size-5 text-primary shrink-0" />}

@@ -33,7 +33,10 @@
 - Nested ternaries in className expressions work fine with string concat
 
 ## Last Action
-localStorage persistence added to all 5 stateful pages (Ah-Counter, Grammarian, Table Topics, Planner, Progress).
-Pattern: `async can with entry` loads from localStorage on mount; `save_storage()` helper called after every mutation; Reset/Delete clears via `localStorage.removeItem(key)`.
-Keys: tm_ah_counter, tm_grammarian, tm_table_topics, tm_planner, tm_progress.
-Validated: data survives navigation between pages.
+Migrated Planner + Progress to Jac server-side graph (shared/multi-user).
+- services/planner.sv.jac — ClubMember + Meeting nodes, 6 def:pub endpoints
+- services/progress.sv.jac — ProgressMember node, 4 def:pub endpoints
+- main.jac converted to fullstack (server imports + cl block)
+- meeting_planner.cl.jac + member_progress.cl.jac rewritten with sv import, async handlers, loading states, ID-based operations
+- Ah-Counter, Grammarian, Table Topics remain on localStorage
+- Validated: server graph persists data across navigation for both Planner and Progress

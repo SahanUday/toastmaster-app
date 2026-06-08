@@ -1,10 +1,10 @@
-import from .ui.card { Card, CardContent }
 import from .ui.button { Button }
 import from .ui.badge { Badge }
 import from .ui.input { Input }
 import from .ui.tabs { Tabs, TabsList, TabsTrigger, TabsContent }
 cl import from "@hugeicons/react" { HugeiconsIcon }
 cl import from "@hugeicons/core-free-icons" { CalendarAdd01Icon, UserAdd01Icon, Delete01Icon, ArrowLeft01Icon, UserIcon, CalendarCheckIn01Icon }
+sv import from ..services.planner { get_planner_data, add_planner_member, remove_planner_member, add_planner_meeting, remove_planner_meeting, assign_meeting_role }
 
 glob ROLES: list = [
     "Toastmaster of the Day",
@@ -18,11 +18,10 @@ glob ROLES: list = [
     "Sergeant at Arms"
 ];
 
-glob planner_ref: dict = {"members": [], "meetings": []};
-
 def:pub MeetingPlanner() -> JsxElement {
     has members: list = [];
     has meetings: list = [];
+    has loading: bool = True;
     has new_member: str = "";
     has new_date: str = "";
     has new_theme: str = "";
@@ -30,18 +29,12 @@ def:pub MeetingPlanner() -> JsxElement {
     has show_schedule: bool = False;
 
     async can with entry {
-        saved: any = localStorage.getItem("tm_planner");
-        if saved {
-            parsed: any = JSON.parse(str(saved));
-            planner_ref["members"] = list(parsed["members"]);
-            planner_ref["meetings"] = list(parsed["meetings"]);
-            members = list(parsed["members"]);
-            meetings = list(parsed["meetings"]);
+        data: any = await get_planner_data();
+        if data {
+            members = list(data["members"]);
+            meetings = list(data["meetings"]);
         }
-    }
-
-    def save_storage() -> None {
-        localStorage.setItem("tm_planner", JSON.stringify({"members": planner_ref["members"], "meetings": planner_ref["meetings"]}));
+        loading = False;
     }
 
     def handle_member_change(e: ChangeEvent) -> None {
@@ -56,89 +49,64 @@ def:pub MeetingPlanner() -> JsxElement {
         new_theme = e.target.value;
     }
 
-    def add_member(e: MouseEvent) -> None {
+    async def do_add_member -> None {
         if new_member {
-            updated: list = members + [{"name": new_member}];
-            planner_ref["members"] = updated;
-            members = updated;
+            name: str = new_member;
             new_member = "";
-            save_storage();
+            data: any = await add_planner_member(name);
+            if data {
+                members = list(data["members"]);
+                meetings = list(data["meetings"]);
+            }
         }
     }
 
     def handle_member_key(e: KeyboardEvent) -> None {
-        if e.key == "Enter" and new_member {
-            updated: list = members + [{"name": new_member}];
-            planner_ref["members"] = updated;
-            members = updated;
-            new_member = "";
-            save_storage();
+        if e.key == "Enter" {
+            do_add_member();
         }
     }
 
-    def remove_member(idx: int) -> None {
-        updated: list = [];
-        for i in range(len(members)) {
-            if i != idx {
-                updated = updated + [members[i]];
-            }
+    async def do_remove_member(member_id: str) -> None {
+        data: any = await remove_planner_member(member_id);
+        if data {
+            members = list(data["members"]);
+            meetings = list(data["meetings"]);
         }
-        planner_ref["members"] = updated;
-        members = updated;
-        save_storage();
     }
 
-    def add_meeting(e: MouseEvent) -> None {
+    async def do_add_meeting -> None {
         if new_date {
-            roles_dict: dict = {};
-            for i in range(len(ROLES)) {
-                roles_dict[ROLES[i]] = "";
-            }
-            meeting: dict = {"date": new_date, "theme": new_theme, "roles": roles_dict};
-            updated: list = meetings + [meeting];
-            planner_ref["meetings"] = updated;
-            meetings = updated;
+            date: str = new_date;
+            theme: str = new_theme;
             new_date = "";
             new_theme = "";
-            selected_meeting = len(updated) - 1;
-            show_schedule = True;
-            save_storage();
+            data: any = await add_planner_meeting(date, theme);
+            if data {
+                members = list(data["members"]);
+                meetings = list(data["meetings"]);
+                selected_meeting = len(list(data["meetings"])) - 1;
+                show_schedule = True;
+            }
         }
     }
 
-    def assign_role(meeting_idx: int, role: str, member_name: str) -> None {
-        updated: list = [];
-        for i in range(len(meetings)) {
-            m: any = meetings[i];
-            if i == meeting_idx {
-                new_roles: dict = {};
-                for j in range(len(ROLES)) {
-                    r: any = ROLES[j];
-                    new_roles[r] = m["roles"][r];
-                }
-                new_roles[role] = member_name;
-                updated = updated + [{"date": m["date"], "theme": m["theme"], "roles": new_roles}];
-            } else {
-                updated = updated + [m];
-            }
+    async def do_remove_meeting(meeting_id: str) -> None {
+        data: any = await remove_planner_meeting(meeting_id);
+        if data {
+            members = list(data["members"]);
+            meetings = list(data["meetings"]);
         }
-        planner_ref["meetings"] = updated;
-        meetings = updated;
-        save_storage();
-    }
-
-    def remove_meeting(idx: int) -> None {
-        updated: list = [];
-        for i in range(len(meetings)) {
-            if i != idx {
-                updated = updated + [meetings[i]];
-            }
-        }
-        planner_ref["meetings"] = updated;
-        meetings = updated;
         selected_meeting = -1;
         show_schedule = False;
-        save_storage();
+    }
+
+    async def do_assign_role(meeting_id: str, role: str, member_name: str) -> None {
+        data: any = await assign_meeting_role(meeting_id, role, member_name);
+        if data {
+            members = list(data["members"]);
+            meetings = list(data["meetings"]);
+        }
     }
 
     has_members: bool = len(members) > 0;
@@ -156,13 +124,22 @@ def:pub MeetingPlanner() -> JsxElement {
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-white">Meeting Planner</h1>
-                    <p className="text-white/60 text-sm">Schedule meetings and assign roles</p>
+                    <p className="text-white/60 text-sm">Schedule meetings and assign roles — shared across all devices</p>
+                </div>
+                <div className="ml-auto flex items-center gap-1.5 bg-emerald-500/20 border border-emerald-400/30 rounded-xl px-3 py-1.5">
+                    <span className="size-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span className="text-emerald-300 text-xs font-medium">Live Sync</span>
                 </div>
             </div>
         </div>
 
         <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-6">
-            {not show_detail and <Tabs defaultValue="members">
+            {loading and <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <div className="size-10 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                <p className="text-muted-foreground text-sm">Loading club data...</p>
+            </div>}
+
+            {not loading and not show_detail and <Tabs defaultValue="members">
                 <TabsList className="w-full">
                     <TabsTrigger value="members" className="flex-1">
                         <HugeiconsIcon icon={UserIcon} strokeWidth={2} className="size-4 mr-1.5" />
@@ -186,7 +163,7 @@ def:pub MeetingPlanner() -> JsxElement {
                                 className="flex-1"
                             />
                             <button
-                                onClick={add_member}
+                                onClick={do_add_member}
                                 className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:bg-primary/90 transition-colors"
                             >
                                 <HugeiconsIcon icon={UserAdd01Icon} strokeWidth={2} className="size-4" />
@@ -216,7 +193,7 @@ def:pub MeetingPlanner() -> JsxElement {
                                     <span className="font-medium text-sm">{str(members[i]["name"])}</span>
                                 </div>
                                 <button
-                                    onClick={lambda(e: MouseEvent) -> None { remove_member(i); }}
+                                    onClick={lambda(e: MouseEvent) -> None { do_remove_member(str(members[i]["id"])); }}
                                     className="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                                 >
                                     <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
@@ -241,7 +218,7 @@ def:pub MeetingPlanner() -> JsxElement {
                                 placeholder="Meeting theme (optional, e.g. 'Leadership')..."
                             />
                             <button
-                                onClick={add_meeting}
+                                onClick={do_add_meeting}
                                 className="flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 text-white rounded-xl font-semibold text-sm hover:bg-amber-600 transition-colors shadow-sm"
                             >
                                 <HugeiconsIcon icon={CalendarAdd01Icon} strokeWidth={2} className="size-4" />
@@ -279,7 +256,7 @@ def:pub MeetingPlanner() -> JsxElement {
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs font-medium text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg">Assign roles →</span>
                                     <button
-                                        onClick={lambda(e: MouseEvent) -> None { e.stopPropagation(); remove_meeting(i); }}
+                                        onClick={lambda(e: MouseEvent) -> None { e.stopPropagation(); do_remove_meeting(str(meetings[i]["id"])); }}
                                         className="size-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                                     >
                                         <HugeiconsIcon icon={Delete01Icon} strokeWidth={2} className="size-4" />
@@ -291,7 +268,7 @@ def:pub MeetingPlanner() -> JsxElement {
                 </TabsContent>
             </Tabs>}
 
-            {show_detail and <div className="flex flex-col gap-5">
+            {not loading and show_detail and <div className="flex flex-col gap-5">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={lambda(e: MouseEvent) -> None { show_schedule = False; }}
@@ -328,14 +305,14 @@ def:pub MeetingPlanner() -> JsxElement {
                                 <span className="text-sm font-semibold text-foreground">{str(ROLES[k])}</span>
                             </div>
                             <select
-                                value={str(meetings[selected_meeting]["roles"][ROLES[k]])}
-                                onChange={lambda(e: ChangeEvent) -> None { assign_role(selected_meeting, str(ROLES[k]), e.target.value); }}
+                                value={str(meetings[selected_meeting]["roles"][ROLES[k]]) if meetings[selected_meeting]["roles"] and ROLES[k] in meetings[selected_meeting]["roles"] else ""}
+                                onChange={lambda(e: ChangeEvent) -> None { do_assign_role(str(meetings[selected_meeting]["id"]), str(ROLES[k]), e.target.value); }}
                                 className="flex-1 p-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                             >
                                 <option value="">— Unassigned —</option>
                                 {[<option key={str(m)} value={str(members[m]["name"])}>{str(members[m]["name"])}</option> for m in range(len(members))]}
                             </select>
-                            {str(meetings[selected_meeting]["roles"][ROLES[k]]) and <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg shrink-0">
+                            {meetings[selected_meeting]["roles"] and ROLES[k] in meetings[selected_meeting]["roles"] and str(meetings[selected_meeting]["roles"][ROLES[k]]) and <span className="text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-lg shrink-0">
                                 {str(meetings[selected_meeting]["roles"][ROLES[k]])}
                             </span>}
                         </div> for k in range(len(ROLES))]}
