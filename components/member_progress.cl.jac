@@ -31,6 +31,19 @@ def:pub MemberProgress() -> JsxElement {
     has new_member: str = "";
     has selected_member: int = -1;
 
+    async can with entry {
+        saved: any = localStorage.getItem("tm_progress");
+        if saved {
+            parsed: any = JSON.parse(str(saved));
+            progress_ref["members"] = list(parsed);
+            members = list(parsed);
+        }
+    }
+
+    def save_storage() -> None {
+        localStorage.setItem("tm_progress", JSON.stringify(progress_ref["members"]));
+    }
+
     def handle_name_change(e: ChangeEvent) -> None {
         new_member = e.target.value;
     }
@@ -46,6 +59,7 @@ def:pub MemberProgress() -> JsxElement {
             progress_ref["members"] = updated;
             members = updated;
             new_member = "";
+            save_storage();
         }
     }
 
@@ -60,6 +74,7 @@ def:pub MemberProgress() -> JsxElement {
             progress_ref["members"] = updated;
             members = updated;
             new_member = "";
+            save_storage();
         }
     }
 
@@ -81,6 +96,7 @@ def:pub MemberProgress() -> JsxElement {
         }
         progress_ref["members"] = updated;
         members = updated;
+        save_storage();
     }
 
     def remove_member(idx: int) -> None {
@@ -95,6 +111,7 @@ def:pub MemberProgress() -> JsxElement {
         if selected_member == idx {
             selected_member = -1;
         }
+        save_storage();
     }
 
     def get_completed(mb: any) -> int {

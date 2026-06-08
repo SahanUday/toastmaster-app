@@ -16,6 +16,19 @@ def:pub TableTopics() -> JsxElement {
     has timer_elapsed: int = 0;
     has timer_interval: any = None;
 
+    async can with entry {
+        saved: any = localStorage.getItem("tm_table_topics");
+        if saved {
+            parsed: any = JSON.parse(str(saved));
+            tt_ref["entries"] = list(parsed);
+            entries = list(parsed);
+        }
+    }
+
+    def save_storage() -> None {
+        localStorage.setItem("tm_table_topics", JSON.stringify(tt_ref["entries"]));
+    }
+
     def handle_speaker_change(e: ChangeEvent) -> None {
         new_speaker = e.target.value;
     }
@@ -32,6 +45,7 @@ def:pub TableTopics() -> JsxElement {
             entries = updated;
             new_speaker = "";
             new_topic = "";
+            save_storage();
         }
     }
 
@@ -43,6 +57,7 @@ def:pub TableTopics() -> JsxElement {
             entries = updated;
             new_speaker = "";
             new_topic = "";
+            save_storage();
         }
     }
 
@@ -80,6 +95,7 @@ def:pub TableTopics() -> JsxElement {
         active_timer = -1;
         timer_elapsed = 0;
         tt_timer_ref["value"] = 0;
+        save_storage();
     }
 
     def remove_entry(idx: int) -> None {
@@ -98,6 +114,7 @@ def:pub TableTopics() -> JsxElement {
         }
         tt_ref["entries"] = updated;
         entries = updated;
+        save_storage();
     }
 
     def handle_reset(e: MouseEvent) -> None {
@@ -110,6 +127,7 @@ def:pub TableTopics() -> JsxElement {
         active_timer = -1;
         timer_elapsed = 0;
         tt_timer_ref["value"] = 0;
+        localStorage.removeItem("tm_table_topics");
     }
 
     def fmt(secs: int) -> str {

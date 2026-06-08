@@ -29,6 +29,21 @@ def:pub MeetingPlanner() -> JsxElement {
     has selected_meeting: int = -1;
     has show_schedule: bool = False;
 
+    async can with entry {
+        saved: any = localStorage.getItem("tm_planner");
+        if saved {
+            parsed: any = JSON.parse(str(saved));
+            planner_ref["members"] = list(parsed["members"]);
+            planner_ref["meetings"] = list(parsed["meetings"]);
+            members = list(parsed["members"]);
+            meetings = list(parsed["meetings"]);
+        }
+    }
+
+    def save_storage() -> None {
+        localStorage.setItem("tm_planner", JSON.stringify({"members": planner_ref["members"], "meetings": planner_ref["meetings"]}));
+    }
+
     def handle_member_change(e: ChangeEvent) -> None {
         new_member = e.target.value;
     }
@@ -47,6 +62,7 @@ def:pub MeetingPlanner() -> JsxElement {
             planner_ref["members"] = updated;
             members = updated;
             new_member = "";
+            save_storage();
         }
     }
 
@@ -56,6 +72,7 @@ def:pub MeetingPlanner() -> JsxElement {
             planner_ref["members"] = updated;
             members = updated;
             new_member = "";
+            save_storage();
         }
     }
 
@@ -68,6 +85,7 @@ def:pub MeetingPlanner() -> JsxElement {
         }
         planner_ref["members"] = updated;
         members = updated;
+        save_storage();
     }
 
     def add_meeting(e: MouseEvent) -> None {
@@ -84,6 +102,7 @@ def:pub MeetingPlanner() -> JsxElement {
             new_theme = "";
             selected_meeting = len(updated) - 1;
             show_schedule = True;
+            save_storage();
         }
     }
 
@@ -105,6 +124,7 @@ def:pub MeetingPlanner() -> JsxElement {
         }
         planner_ref["meetings"] = updated;
         meetings = updated;
+        save_storage();
     }
 
     def remove_meeting(idx: int) -> None {
@@ -118,6 +138,7 @@ def:pub MeetingPlanner() -> JsxElement {
         meetings = updated;
         selected_meeting = -1;
         show_schedule = False;
+        save_storage();
     }
 
     has_members: bool = len(members) > 0;

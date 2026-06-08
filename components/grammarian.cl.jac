@@ -16,6 +16,26 @@ def:pub Grammarian() -> JsxElement {
     has new_note: str = "";
     has note_type: str = "good";
 
+    async can with entry {
+        saved: any = localStorage.getItem("tm_grammarian");
+        if saved {
+            parsed: any = JSON.parse(str(saved));
+            gram_ref["word"] = parsed["word"];
+            gram_ref["speakers"] = list(parsed["speakers"]);
+            gram_ref["notes"] = list(parsed["notes"]);
+            word_of_day = str(parsed["word"]);
+            speakers = list(parsed["speakers"]);
+            notes = list(parsed["notes"]);
+            if parsed["word"] {
+                editing_word = False;
+            }
+        }
+    }
+
+    def save_storage() -> None {
+        localStorage.setItem("tm_grammarian", JSON.stringify({"word": gram_ref["word"], "speakers": gram_ref["speakers"], "notes": gram_ref["notes"]}));
+    }
+
     def handle_word_change(e: ChangeEvent) -> None {
         word_of_day = e.target.value;
     }
@@ -24,6 +44,7 @@ def:pub Grammarian() -> JsxElement {
         if word_of_day {
             gram_ref["word"] = word_of_day;
             editing_word = False;
+            save_storage();
         }
     }
 
@@ -50,6 +71,7 @@ def:pub Grammarian() -> JsxElement {
             gram_ref["speakers"] = updated;
             speakers = updated;
             new_speaker = "";
+            save_storage();
         }
     }
 
@@ -60,6 +82,7 @@ def:pub Grammarian() -> JsxElement {
             gram_ref["speakers"] = updated;
             speakers = updated;
             new_speaker = "";
+            save_storage();
         }
     }
 
@@ -75,6 +98,7 @@ def:pub Grammarian() -> JsxElement {
         }
         gram_ref["speakers"] = updated;
         speakers = updated;
+        save_storage();
     }
 
     def decrement_word_use(idx: int) -> None {
@@ -90,6 +114,7 @@ def:pub Grammarian() -> JsxElement {
         }
         gram_ref["speakers"] = updated;
         speakers = updated;
+        save_storage();
     }
 
     def remove_speaker(idx: int) -> None {
@@ -101,6 +126,7 @@ def:pub Grammarian() -> JsxElement {
         }
         gram_ref["speakers"] = updated;
         speakers = updated;
+        save_storage();
     }
 
     def add_note(e: MouseEvent) -> None {
@@ -110,6 +136,7 @@ def:pub Grammarian() -> JsxElement {
             gram_ref["notes"] = updated;
             notes = updated;
             new_note = "";
+            save_storage();
         }
     }
 
@@ -120,6 +147,7 @@ def:pub Grammarian() -> JsxElement {
             gram_ref["notes"] = updated;
             notes = updated;
             new_note = "";
+            save_storage();
         }
     }
 
@@ -132,6 +160,7 @@ def:pub Grammarian() -> JsxElement {
         }
         gram_ref["notes"] = updated;
         notes = updated;
+        save_storage();
     }
 
     def handle_reset(e: MouseEvent) -> None {
@@ -142,6 +171,7 @@ def:pub Grammarian() -> JsxElement {
         editing_word = True;
         speakers = [];
         notes = [];
+        localStorage.removeItem("tm_grammarian");
     }
 
     has_word: bool = word_of_day != "" and not editing_word;

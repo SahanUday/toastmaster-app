@@ -33,5 +33,7 @@
 - Nested ternaries in className expressions work fine with string concat
 
 ## Last Action
-Full UI overhaul complete. Navy/gold premium theme, hero image dashboard, polished all 7 tool pages.
-App running and validated at preview URL.
+localStorage persistence added to all 5 stateful pages (Ah-Counter, Grammarian, Table Topics, Planner, Progress).
+Pattern: `async can with entry` loads from localStorage on mount; `save_storage()` helper called after every mutation; Reset/Delete clears via `localStorage.removeItem(key)`.
+Keys: tm_ah_counter, tm_grammarian, tm_table_topics, tm_planner, tm_progress.
+Validated: data survives navigation between pages.

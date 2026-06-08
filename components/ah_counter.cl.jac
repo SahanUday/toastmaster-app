@@ -14,6 +14,19 @@ def:pub AhCounter() -> JsxElement {
     has new_name: str = "";
     has show_report: bool = False;
 
+    async can with entry {
+        saved: any = localStorage.getItem("tm_ah_counter");
+        if saved {
+            parsed: any = JSON.parse(str(saved));
+            ah_ref["speakers"] = list(parsed);
+            speakers = list(parsed);
+        }
+    }
+
+    def save_storage() -> None {
+        localStorage.setItem("tm_ah_counter", JSON.stringify(ah_ref["speakers"]));
+    }
+
     def handle_name_change(e: ChangeEvent) -> None {
         new_name = e.target.value;
     }
@@ -29,6 +42,7 @@ def:pub AhCounter() -> JsxElement {
             ah_ref["speakers"] = updated;
             speakers = updated;
             new_name = "";
+            save_storage();
         }
     }
 
@@ -60,6 +74,7 @@ def:pub AhCounter() -> JsxElement {
         }
         ah_ref["speakers"] = updated;
         speakers = updated;
+        save_storage();
     }
 
     def handle_remove(idx: int) -> None {
@@ -71,12 +86,14 @@ def:pub AhCounter() -> JsxElement {
         }
         ah_ref["speakers"] = updated;
         speakers = updated;
+        save_storage();
     }
 
     def handle_reset(e: MouseEvent) -> None {
         ah_ref["speakers"] = [];
         speakers = [];
         show_report = False;
+        localStorage.removeItem("tm_ah_counter");
     }
 
     def handle_toggle_report(e: MouseEvent) -> None {
